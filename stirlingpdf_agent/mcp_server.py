@@ -17,7 +17,7 @@ from agent_utilities.mcp_utilities import (
 )
 from stirlingpdf_agent.auth import get_client
 
-__version__ = "0.1.14"
+__version__ = "0.1.15"
 print(f"Stirling PDF Agent MCP v{__version__}")
 
 logger = get_logger(name="TokenMiddleware")
@@ -43,10 +43,10 @@ def register_pdf_tools(mcp: FastMCP):
         filepath: str = Field(
             ..., description="Path to the input PDF file to watermark."
         ),
+        watermarkText: str = Field(..., description="The text of the watermark."),
         watermarkType: str = Field(
             default="text", description="Type of watermark (e.g. 'text')."
         ),
-        watermarkText: str = Field(..., description="The text of the watermark."),
         alphabet: Optional[str] = Field(default="roman", description="Alphabet type."),
         fontSize: Optional[str] = Field(default="30", description="Font size."),
         rotation: Optional[str] = Field(default="0", description="Rotation angle."),
