@@ -2,13 +2,12 @@
 # coding: utf-8
 
 import os
-import requests
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# TODO: Import your API wrapper class here
-# from stirlingpdf_agent.stirlingpdf_api import StirlingpdfApi
+from stirlingpdf_agent.stirlingpdf_api import StirlingPdfApi
+from agent_utilities.exceptions import AuthError, UnauthorizedError
 
 _client = None
 
@@ -25,17 +24,17 @@ def get_client():
             "yes",
         )
 
-        # TODO: Uncomment and configure once the API wrapper class is created
-        # _client = StirlingpdfApi(
-        #     base_url=base_url,
-        #     token=token,
-        #     verify=verify,
-        # )
-
-        # Placeholder: return a simple session-based client
-        session = requests.Session()
-        session.headers.update({"Authorization": f"Bearer {token}"})
-        session.verify = verify
-        _client = type("Client", (), {"session": session, "base_url": base_url})()
+        try:
+            _client = StirlingPdfApi(
+                base_url=base_url,
+                token=token,
+                verify=verify,
+            )
+        except (AuthError, UnauthorizedError) as e:
+            raise RuntimeError(
+                f"AUTHENTICATION ERROR: The Stirling PDF API key provided is not valid for '{base_url}'. "
+                f"Please check your STIRLINGPDF_API_KEY and STIRLINGPDF_URL environment variables. "
+                f"Error details: {str(e)}"
+            ) from e
 
     return _client
