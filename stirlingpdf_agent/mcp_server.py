@@ -17,7 +17,7 @@ from agent_utilities.mcp_utilities import (
 )
 from stirlingpdf_agent.auth import get_client
 
-__version__ = "0.1.19"
+__version__ = "0.1.20"
 print(f"Stirling PDF Agent MCP v{__version__}")
 
 logger = get_logger(name="TokenMiddleware")
