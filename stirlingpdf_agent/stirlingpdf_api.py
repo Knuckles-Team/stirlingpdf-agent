@@ -42,29 +42,7 @@ class StirlingPdfApi(object):
         if self.api_key:
             self.headers["X-API-KEY"] = self.api_key
 
-        # Validate credentials during initialization
-        try:
-            # Using /api/v1/info as a lightweight validation endpoint if it exists
-            # StirlingPDF usually responds to GET /api/v1/info or similar with 401 if unauthorized
-            response = self._session.get(
-                url=f"{self.url}/info",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            if response.status_code == 401:
-                raise AuthError("Stirling PDF authentication failed: Invalid API key.")
-            elif response.status_code == 403:
-                raise UnauthorizedError(
-                    "Stirling PDF access forbidden: Insufficient permissions."
-                )
-            # We don't necessarily call raise_for_status() here if the endpoint
-            # doesn't exist (404), as we just want to catch auth errors.
-        except (AuthError, UnauthorizedError) as e:
-            raise e
-        except Exception:
-            # For other errors (connection, etc.), let it pass or handle elsewhere
-            pass
+        # Authentication check moved to method calls via require_auth
 
     @require_auth
     def add_watermark(self, filepath: str, **kwargs) -> Response:
