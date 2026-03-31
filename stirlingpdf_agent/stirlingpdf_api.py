@@ -1,5 +1,5 @@
 #!/usr/bin/python
-               
+
 from typing import Optional
 
 import requests
@@ -42,8 +42,6 @@ class StirlingPdfApi(object):
         if self.api_key:
             self.headers["X-API-KEY"] = self.api_key
 
-                                                                     
-
     @require_auth
     def add_watermark(self, filepath: str, **kwargs) -> Response:
         """
@@ -58,11 +56,10 @@ class StirlingPdfApi(object):
         try:
             model = AddWatermarkModel(**kwargs)
 
-                                                          
             with open(filepath, "rb") as f:
                 files = {"fileInput": (filepath, f, "application/pdf")}
                 response = self._session.post(
-                    url=f"{self.url}/general/add-watermark",                                       
+                    url=f"{self.url}/general/add-watermark",
                     data=model.api_parameters,
                     files=files,
                     headers=self.headers,
@@ -72,7 +69,6 @@ class StirlingPdfApi(object):
 
             response.raise_for_status()
 
-                                                                            
             return Response(response=response, data=response.content)
 
         except ValidationError as ve:

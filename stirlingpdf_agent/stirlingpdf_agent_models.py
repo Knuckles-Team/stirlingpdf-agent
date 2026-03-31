@@ -1,5 +1,5 @@
 #!/usr/bin/python
-               
+
 from typing import Optional, Any
 from pydantic import BaseModel, ConfigDict, Field
 import requests
