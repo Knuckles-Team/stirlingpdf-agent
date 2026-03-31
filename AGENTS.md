@@ -5,7 +5,7 @@
 - Core Libraries: `agent-utilities`, `fastmcp`, `pydantic-ai`
 - Key principles: Functional patterns, Pydantic for data validation, asynchronous tool execution.
 - Architecture:
-    - `mcp.py`: Main MCP server entry point and tool registration.
+    - `mcp_server.py`: Main MCP server entry point and tool registration.
     - `agent.py`: Pydantic AI agent definition and logic.
     - `skills/`: Directory containing modular agent skills (if applicable).
     - `agent/`: Internal agent logic and prompt templates.
@@ -51,14 +51,14 @@ pre-commit run --all-files
 # stirlingpdf-mcp\nstirlingpdf_agent.mcp:mcp_server\n# stirlingpdf-agent\nstirlingpdf_agent.agent:agent_server
 
 ## Project Structure Quick Reference
-- MCP Entry Point → `mcp.py`
+- MCP Entry Point → `mcp_server.py`
 - Agent Entry Point → `agent.py`
 - Source Code → `stirlingpdf_agent/`
 - Skills → `skills/` (if exists)
 
 ### File Tree
 ```text
-├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── pyproject.toml\n├── requirements.txt\n├── stirlingpdf_agent\n│   ├── __init__.py\n│   ├── agent\n│   │   ├── AGENTS.md\n│   │   ├── CRON.md\n│   │   ├── CRON_LOG.md\n│   │   ├── HEARTBEAT.md\n│   │   ├── IDENTITY.md\n│   │   ├── MEMORY.md\n│   │   ├── USER.md\n│   │   └── mcp_config.json\n│   ├── agent.py\n│   ├── auth.py\n│   ├── mcp.py\n│   ├── skills\n│   │   └── stirlingpdf-agent-docs\n│   ├── stirlingpdf_agent_models.py\n│   └── stirlingpdf_api.py\n└── stirlingpdf_agent.egg-info\n    ├── PKG-INFO\n    ├── SOURCES.txt\n    ├── dependency_links.txt\n    ├── entry_points.txt\n    ├── requires.txt\n    └── top_level.txt
+├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── pyproject.toml\n├── requirements.txt\n├── stirlingpdf_agent\n│   ├── __init__.py\n│   ├── agent\n│   │   ├── AGENTS.md\n│   │   ├── CRON.md\n│   │   ├── CRON_LOG.md\n│   │   ├── HEARTBEAT.md\n│   │   ├── IDENTITY.md\n│   │   ├── MEMORY.md\n│   │   ├── USER.md\n│   │   └── mcp_config.json\n│   ├── agent.py\n│   ├── auth.py\n│   ├── mcp_server.py\n│   ├── skills\n│   │   └── stirlingpdf-agent-docs\n│   ├── stirlingpdf_agent_models.py\n│   └── stirlingpdf_api.py\n└── stirlingpdf_agent.egg-info\n    ├── PKG-INFO\n    ├── SOURCES.txt\n    ├── dependency_links.txt\n    ├── entry_points.txt\n    ├── requires.txt\n    └── top_level.txt
 ```
 
 ## Code Style & Conventions
@@ -98,7 +98,7 @@ async def my_tool(param: str) -> str:
 - Use `agent-utilities` base classes.
 
 **Ask first:**
-- Major refactors of `mcp.py` or `agent.py`.
+- Major refactors of `mcp_server.py` or `agent.py`.
 - Deleting or renaming public tool functions.
 
 **Never do:**

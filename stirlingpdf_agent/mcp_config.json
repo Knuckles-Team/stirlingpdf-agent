@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "stirlingpdf": {
+      "command": "stirlingpdf-mcp",
+      "args": ["--transport", "stdio"],
+      "env": {
+        "STIRLINGPDF_URL": "${STIRLINGPDF_URL:-http://localhost:8080}",
+        "STIRLINGPDF_TOKEN": "${STIRLINGPDF_TOKEN}"
+      }
+    }
+  }
+}

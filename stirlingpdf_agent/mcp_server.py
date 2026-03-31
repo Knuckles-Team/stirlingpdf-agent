@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# coding: utf-8
+
 
 from dotenv import load_dotenv, find_dotenv
 from agent_utilities.base_utilities import to_boolean
@@ -16,7 +16,7 @@ from agent_utilities.mcp_utilities import (
 )
 from stirlingpdf_agent.auth import get_client
 
-__version__ = "0.1.23"
+__version__ = "0.1.24"
 print(f"Stirling PDF Agent MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="TokenMiddleware")
@@ -74,7 +74,7 @@ def register_pdf_tools(mcp: FastMCP):
         }
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         response = api.add_watermark(**kwargs)
-        # Return base64 encoded PDF bytes
+
         return base64.b64encode(response.data).decode("utf-8")
 
 
