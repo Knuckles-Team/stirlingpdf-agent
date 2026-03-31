@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stirlingpdf-agent"
-version = "0.1.26"
+version = "0.1.27"
 description = "Agent package for communicating with Stirling PDF via REST APIs."
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
