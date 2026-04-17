@@ -6,6 +6,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     try:
         from requests.exceptions import RequestsDependencyWarning
+
         warnings.filterwarnings("ignore", category=RequestsDependencyWarning)
     except ImportError:
         pass
@@ -29,7 +30,7 @@ from agent_utilities.mcp_utilities import (
 )
 from stirlingpdf_agent.auth import get_client
 
-__version__ = "0.1.29"
+__version__ = "0.1.30"
 print(f"Stirling PDF Agent MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="TokenMiddleware")
