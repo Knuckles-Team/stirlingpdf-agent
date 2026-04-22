@@ -2,12 +2,14 @@
 
 
 import os
+
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-from stirlingpdf_agent.stirlingpdf_api import StirlingPdfApi
 from agent_utilities.exceptions import AuthError, UnauthorizedError
+
+from stirlingpdf_agent.stirlingpdf_api import StirlingPdfApi
 
 _client = None
 

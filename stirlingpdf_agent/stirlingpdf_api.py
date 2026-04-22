@@ -1,29 +1,27 @@
 #!/usr/bin/python
 
-from typing import Optional
 
 import requests
 import urllib3
-from pydantic import ValidationError
-
-from stirlingpdf_agent.stirlingpdf_agent_models import AddWatermarkModel, Response
 from agent_utilities.decorators import require_auth
 from agent_utilities.exceptions import (
     AuthError,
-    UnauthorizedError,
-    ParameterError,
     MissingParameterError,
+    ParameterError,
+    UnauthorizedError,
 )
+from pydantic import ValidationError
+
+from stirlingpdf_agent.stirlingpdf_agent_models import AddWatermarkModel, Response
 
 
-class StirlingPdfApi(object):
-
+class StirlingPdfApi:
     def __init__(
         self,
-        base_url: str = None,
-        token: Optional[str] = None,
-        proxies: Optional[dict] = None,
-        verify: Optional[bool] = True,
+        base_url: str | None = None,
+        token: str | None = None,
+        proxies: dict | None = None,
+        verify: bool | None = True,
     ):
         if base_url is None:
             raise MissingParameterError("base_url is required")

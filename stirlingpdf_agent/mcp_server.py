@@ -15,19 +15,20 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
-from dotenv import load_dotenv, find_dotenv
-from agent_utilities.base_utilities import to_boolean
+import logging
 import os
 import sys
-import logging
-from typing import Optional, Any
+from typing import Any
 
-from pydantic import Field
-from fastmcp import FastMCP
-from fastmcp.utilities.logging import get_logger
+from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
 )
+from dotenv import find_dotenv, load_dotenv
+from fastmcp import FastMCP
+from fastmcp.utilities.logging import get_logger
+from pydantic import Field
+
 from stirlingpdf_agent.auth import get_client
 
 __version__ = "0.1.30"
@@ -60,16 +61,12 @@ def register_pdf_tools(mcp: FastMCP):
         watermarkType: str = Field(
             default="text", description="Type of watermark (e.g. 'text')."
         ),
-        alphabet: Optional[str] = Field(default="roman", description="Alphabet type."),
-        fontSize: Optional[str] = Field(default="30", description="Font size."),
-        rotation: Optional[str] = Field(default="0", description="Rotation angle."),
-        opacity: Optional[str] = Field(
-            default="0.5", description="Opacity (0.0 to 1.0)."
-        ),
-        widthSpacer: Optional[str] = Field(default="50", description="Width spacing."),
-        heightSpacer: Optional[str] = Field(
-            default="50", description="Height spacing."
-        ),
+        alphabet: str | None = Field(default="roman", description="Alphabet type."),
+        fontSize: str | None = Field(default="30", description="Font size."),
+        rotation: str | None = Field(default="0", description="Rotation angle."),
+        opacity: str | None = Field(default="0.5", description="Opacity (0.0 to 1.0)."),
+        widthSpacer: str | None = Field(default="50", description="Width spacing."),
+        heightSpacer: str | None = Field(default="50", description="Height spacing."),
     ) -> Any:
         """Add a watermark to a PDF file."""
         import base64
