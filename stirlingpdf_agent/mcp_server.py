@@ -25,7 +25,7 @@ from agent_utilities.mcp_utilities import (
     create_mcp_server,
 )
 from dotenv import find_dotenv, load_dotenv
-from fastmcp import FastMCP
+from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
@@ -67,6 +67,9 @@ def register_pdf_tools(mcp: FastMCP):
         opacity: str | None = Field(default="0.5", description="Opacity (0.0 to 1.0)."),
         widthSpacer: str | None = Field(default="50", description="Width spacing."),
         heightSpacer: str | None = Field(default="50", description="Height spacing."),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> Any:
         """Add a watermark to a PDF file."""
         import base64

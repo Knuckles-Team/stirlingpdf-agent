@@ -71,11 +71,12 @@ class StirlingPdfApi:
 
         except ValidationError as ve:
             print(f"Invalid parameters or response data: {ve.errors()}")
-            raise ParameterError(f"Invalid parameters: {ve.errors()}")
+            raise ParameterError(f"Invalid parameters: {ve.errors()}") from ve
         except requests.exceptions.HTTPError as e:
             if e.response.status_code in [401, 403]:
-                raise AuthError if e.response.status_code == 401 else UnauthorizedError
-            raise e
+                exc = AuthError if e.response.status_code == 401 else UnauthorizedError
+                raise exc from e
+            raise e from e
         except Exception as e:
             print(f"Error during API call: {e}")
-            raise
+            raise e from e
