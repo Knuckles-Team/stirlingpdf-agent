@@ -3,8 +3,8 @@
 
 import requests
 import urllib3
-from agent_utilities.decorators import require_auth
-from agent_utilities.exceptions import (
+from agent_utilities.core.decorators import require_auth
+from agent_utilities.core.exceptions import (
     AuthError,
     MissingParameterError,
     ParameterError,

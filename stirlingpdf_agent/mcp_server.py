@@ -31,7 +31,7 @@ from pydantic import Field
 
 from stirlingpdf_agent.auth import get_client
 
-__version__ = "0.1.30"
+__version__ = "0.1.31"
 print(f"Stirling PDF Agent MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="TokenMiddleware")
@@ -74,6 +74,8 @@ def register_pdf_tools(mcp: FastMCP):
         """Add a watermark to a PDF file."""
         import base64
 
+        _ = ctx
+
         api = get_client()
         kwargs = {
             "filepath": filepath,
@@ -108,7 +110,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
 
     for mw in middlewares:
         mcp.add_middleware(mw)
-    registered_tags = []
+    registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
 

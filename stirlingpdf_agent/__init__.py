@@ -3,9 +3,15 @@
 
 import importlib
 import inspect
-from typing import List
 
 __all__: list[str] = []
+
+try:
+    from importlib.metadata import version
+
+    __version__ = version("stirlingpdf-agent")
+except Exception:
+    __version__ = "unknown"
 
 CORE_MODULES = [
     "stirlingpdf_agent.stirlingpdf_api",
