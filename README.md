@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/stirlingpdf-agent)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/stirlingpdf-agent)
 
-*Version: 0.5.0*
+*Version: 0.6.0*
 
 ## Overview
 
@@ -138,3 +138,62 @@ uv pip install stirlingpdf-agent
 
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
+
+
+## MCP Configuration Examples
+
+### 1. Standard IO (stdio) Deployment
+
+```json
+{
+  "mcpServers": {
+    "stirlingpdf-agent": {
+      "command": "uv",
+      "args": [
+        "run",
+        "stirlingpdf-mcp"
+      ],
+      "env": {
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "PDFTOOL": "True",
+        "STIRLINGPDF_AGENT_VERIFY": "<YOUR_STIRLINGPDF_AGENT_VERIFY>",
+        "STIRLINGPDF_API_KEY": "<YOUR_STIRLINGPDF_API_KEY>",
+        "STIRLINGPDF_URL": "<YOUR_STIRLINGPDF_URL>"
+      }
+    }
+  }
+}
+```
+
+### 2. Streamable HTTP (SSE) Deployment
+
+```json
+{
+  "mcpServers": {
+    "stirlingpdf-agent": {
+      "command": "uv",
+      "args": [
+        "run",
+        "stirlingpdf-mcp",
+        "--transport",
+        "http",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000"
+      ],
+      "env": {
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "PDFTOOL": "True",
+        "STIRLINGPDF_AGENT_VERIFY": "<YOUR_STIRLINGPDF_AGENT_VERIFY>",
+        "STIRLINGPDF_API_KEY": "<YOUR_STIRLINGPDF_API_KEY>",
+        "STIRLINGPDF_URL": "<YOUR_STIRLINGPDF_URL>"
+      }
+    }
+  }
+}
+```
