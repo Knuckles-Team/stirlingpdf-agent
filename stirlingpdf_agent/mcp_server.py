@@ -31,7 +31,7 @@ from pydantic import Field
 
 from stirlingpdf_agent.auth import get_client
 
-__version__ = "0.7.1"
+__version__ = "0.8.0"
 print(f"Stirling PDF Agent MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="TokenMiddleware")
