@@ -54,10 +54,8 @@ def register_pdf_tools(mcp: FastMCP):
         tags={"PDF"},
     )
     def add_watermark_tool(
-        filepath: str = Field(
-            ..., description="Path to the input PDF file to watermark."
-        ),
-        watermarkText: str = Field(..., description="The text of the watermark."),
+        filepath: str = Field(description="Path to the input PDF file to watermark."),
+        watermarkText: str = Field(description="The text of the watermark."),
         watermarkType: str = Field(
             default="text", description="Type of watermark (e.g. 'text')."
         ),
@@ -72,6 +70,7 @@ def register_pdf_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Add a watermark to a PDF file."""
+        kwargs: dict[str, Any]
         import base64
 
         _ = ctx

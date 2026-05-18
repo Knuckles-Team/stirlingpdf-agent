@@ -14,7 +14,7 @@ except Exception:
     __version__ = "unknown"
 
 CORE_MODULES = [
-    "stirlingpdf_agent.stirlingpdf_api",
+    "stirlingpdf_agent.api_client",
 ]
 
 OPTIONAL_MODULES = {

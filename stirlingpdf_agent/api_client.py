@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 
+import sys
+
 import requests
 import urllib3
 from agent_utilities.core.decorators import require_auth
@@ -70,7 +72,9 @@ class StirlingPdfApi:
             return Response(response=response, data=response.content)
 
         except ValidationError as ve:
-            print(f"Invalid parameters or response data: {ve.errors()}")
+            print(
+                f"Invalid parameters or response data: {ve.errors()}", file=sys.stderr
+            )
             raise ParameterError(f"Invalid parameters: {ve.errors()}") from ve
         except requests.exceptions.HTTPError as e:
             if e.response.status_code in [401, 403]:
@@ -78,5 +82,5 @@ class StirlingPdfApi:
                 raise exc from e
             raise e from e
         except Exception as e:
-            print(f"Error during API call: {e}")
+            print(f"Error during API call: {e}", file=sys.stderr)
             raise e from e
