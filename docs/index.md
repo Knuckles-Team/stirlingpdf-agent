@@ -154,9 +154,6 @@ uv pip install stirlingpdf-agent
         "stirlingpdf-mcp"
       ],
       "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
         "PDFTOOL": "True",
         "STIRLINGPDF_AGENT_VERIFY": "<YOUR_STIRLINGPDF_AGENT_VERIFY>",
         "STIRLINGPDF_API_KEY": "<YOUR_STIRLINGPDF_API_KEY>",
@@ -185,9 +182,6 @@ uv pip install stirlingpdf-agent
         "8000"
       ],
       "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
         "PDFTOOL": "True",
         "STIRLINGPDF_AGENT_VERIFY": "<YOUR_STIRLINGPDF_AGENT_VERIFY>",
         "STIRLINGPDF_API_KEY": "<YOUR_STIRLINGPDF_API_KEY>",

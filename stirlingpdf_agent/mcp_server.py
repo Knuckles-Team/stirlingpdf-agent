@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import warnings
 
 # Filter RequestsDependencyWarning early to prevent log spam
@@ -15,6 +14,12 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
+"""
+Stirling PDF Agent MCP Server.
+
+Provides tools to manipulate and edit PDF files (e.g. adding watermarks).
+"""
+
 import logging
 import os
 import sys
@@ -26,16 +31,16 @@ from agent_utilities.mcp_utilities import (
 )
 from dotenv import find_dotenv, load_dotenv
 from fastmcp import Context, FastMCP
+from fastmcp.dependencies import Depends
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
 from stirlingpdf_agent.auth import get_client
 
-__version__ = "0.11.0"
-print(f"Stirling PDF Agent MCP v{__version__}", file=sys.stderr)
+__version__ = "0.11.1"
 
-logger = get_logger(name="TokenMiddleware")
-logger.setLevel(logging.DEBUG)
+logger = get_logger(name="StirlingPdfMCP")
+logger.setLevel(logging.INFO)
 
 
 def register_prompts(mcp: FastMCP):
@@ -48,52 +53,69 @@ def register_prompts(mcp: FastMCP):
 
 
 def register_pdf_tools(mcp: FastMCP):
-    @mcp.tool(
-        name="add_watermark",
-        description="Add a watermark to a PDF file.",
-        tags={"PDF"},
-    )
-    def add_watermark_tool(
-        filepath: str = Field(description="Path to the input PDF file to watermark."),
-        watermarkText: str = Field(description="The text of the watermark."),
-        watermarkType: str = Field(
-            default="text", description="Type of watermark (e.g. 'text')."
+    @mcp.tool(tags={"PDF"}, name="pdf_action")
+    async def pdf_action(
+        action: str = Field(
+            description="The action/method name to execute on Stirling PDF API (e.g. add_watermark)"
         ),
-        alphabet: str | None = Field(default="roman", description="Alphabet type."),
-        fontSize: str | None = Field(default="30", description="Font size."),
-        rotation: str | None = Field(default="0", description="Rotation angle."),
-        opacity: str | None = Field(default="0.5", description="Opacity (0.0 to 1.0)."),
-        widthSpacer: str | None = Field(default="50", description="Width spacing."),
-        heightSpacer: str | None = Field(default="50", description="Height spacing."),
-        ctx: Context = Field(
-            description="MCP context for progress reporting", default=None
+        params_json: str = Field(
+            default="{}",
+            description="JSON string of parameters to pass to the action (e.g. {'filepath': 'input.pdf', 'watermarkText': 'DRAFT'}).",
         ),
-    ) -> Any:
-        """Add a watermark to a PDF file."""
-        kwargs: dict[str, Any]
-        import base64
+        client=Depends(get_client),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> dict:
+        """Execute any Stirling PDF API action dynamically."""
+        if ctx:
+            await ctx.info(f"Executing Stirling PDF action: {action}...")
+        import json
 
-        _ = ctx
+        try:
+            kwargs = json.loads(params_json) if params_json else {}
+        except Exception as e:
+            return {"error": f"Invalid params_json: {e}"}
 
-        api = get_client()
-        kwargs = {
-            "filepath": filepath,
-            "watermarkType": watermarkType,
-            "watermarkText": watermarkText,
-            "alphabet": alphabet,
-            "fontSize": fontSize,
-            "rotation": rotation,
-            "opacity": opacity,
-            "widthSpacer": widthSpacer,
-            "heightSpacer": heightSpacer,
-        }
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
-        response = api.add_watermark(**kwargs)
 
-        return base64.b64encode(response.data).decode("utf-8")
+        # Dynamic method lookup
+        method = getattr(client, action, None)
+        if method is None:
+            raise ValueError(f"Unknown action '{action}' on StirlingPdfApi")
+
+        res = method(**kwargs)
+
+        if hasattr(res, "dict") and callable(res.dict):
+            res_dict = res.dict()
+            if isinstance(res_dict, dict):
+                # If Response wraps binary data, encode it as base64 and remove requests.Response
+                if "data" in res_dict and isinstance(res_dict["data"], bytes):
+                    import base64
+
+                    res_dict["data"] = base64.b64encode(res_dict["data"]).decode(
+                        "utf-8"
+                    )
+                if "response" in res_dict:
+                    res_dict.pop("response", None)
+                return res_dict
+        elif hasattr(res, "model_dump") and callable(res.model_dump):
+            res_dict = res.model_dump()
+            if isinstance(res_dict, dict):
+                if "data" in res_dict and isinstance(res_dict["data"], bytes):
+                    import base64
+
+                    res_dict["data"] = base64.b64encode(res_dict["data"]).decode(
+                        "utf-8"
+                    )
+                if "response" in res_dict:
+                    res_dict.pop("response", None)
+                return res_dict
+
+        return {"status": "success", "result": str(res)}
 
 
-def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
+def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Initialize and return the MCP instance, args, and middlewares."""
     load_dotenv(find_dotenv())
     args, mcp, middlewares = create_mcp_server(

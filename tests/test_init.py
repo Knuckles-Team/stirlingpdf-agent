@@ -14,4 +14,4 @@ def test_import_stirlingpdf_agent():
     """Test that the package can be imported."""
     import stirlingpdf_agent
 
-    assert stirlingpdf_agent.__version__ is not None # type: ignore[attr-defined]
+    assert stirlingpdf_agent.__version__ is not None  # type: ignore[attr-defined]
