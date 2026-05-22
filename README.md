@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/stirlingpdf-agent)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/stirlingpdf-agent)
 
-*Version: 0.11.1*
+*Version: 0.12.0*
 
 ---
 
