@@ -1,0 +1,53 @@
+# Tasks: Code Enhancement: stirlingpdf-agent
+
+Generated: 2026-05-24T04:17:16.237475+00:00
+Skipped informational: 6
+
+- [ ] [P] **T001** [Project Analysis] Detected 1 agent skill(s) — will grade in CE-026
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T002** [Dependency Audit] Minor update: agent-utilities 0.2.40 (installed) -> 0.16.0
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T003** [Dependency Audit] Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T004** [Test Coverage] Test suite lacks intent diversity (only one type)
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T005** [Test Coverage] 13 potential doc-test drift items
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T006** [Documentation & Governance] 2 broken internal links in README.md
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T007** [Architecture & Design Patterns] SRP: 1 modules exceed 500 lines (god modules)
+  - Priority: P2-Medium | Effort: Large
+- [ ] [P] **T008** [Architecture & Design Patterns] No discernible layer architecture (no domain/service/adapter separation)
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T009** [Concept Traceability] Low traceability ratio: 9% concepts fully traced
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T010** [Concept Traceability] 8 orphaned concepts (only in one source)
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T011** [Concept Traceability] 32 test functions missing concept markers
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T012** [Linting & Formatting] Total lint findings: 0 (high/error: 0, medium/warning: 0, low: 0)
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T013** [Pre-Commit Compliance] 2 hook(s) may be outdated: ruff-pre-commit, uv-pre-commit
+  - Priority: P2-Medium | Effort: Small
+- [ ] [P] **T014** [Changelog Audit] CHANGELOG.md exists but could not be parsed — check format compliance
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T015** [Changelog Audit] No changelog entries within the last 30 days
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T016** [Changelog Audit] keepachangelog not installed — pip install 'universal-skills[code-enhancer]'
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T017** [Pytest Quality] 1 tests have generic names (test_1, test_case_42, etc.)
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T018** [Pytest Quality] 1 test files exceed 500 lines — split into focused modules
+  - Priority: P2-Medium | Effort: Large
+- [ ] [P] **T019** [Pytest Quality] Low fixture usage: only 17% of tests use fixtures
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T020** [Pytest Quality] No @pytest.mark.parametrize usage — consider data-driven tests
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T021** [Pytest Quality] 3 tests have no assertions
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T022** [Environment Variables] Undocumented env vars: OTEL_EXPORTER_OTLP_ENDPOINT, STIRLINGPDF_SSL_VERIFY, STIR
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T023** [Environment Variables] 2 Python env vars not in .env.example: STIRLINGPDF_SSL_VERIFY, STIRLINGPDF_TOKEN
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T024** [analyze_xdg_kg] Analysis error: No module named 'agent_utilities.knowledge_graph'
+  - Priority: P1-High | Effort: Medium

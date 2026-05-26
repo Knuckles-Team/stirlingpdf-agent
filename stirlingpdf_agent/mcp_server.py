@@ -13,7 +13,6 @@ with warnings.catch_warnings():
 # General urllib3/chardet mismatch warnings
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
-
 """
 Stirling PDF Agent MCP Server.
 
@@ -42,7 +41,6 @@ __version__ = "0.14.0"
 logger = get_logger(name="StirlingPdfMCP")
 logger.setLevel(logging.INFO)
 
-
 def register_prompts(mcp: FastMCP):
     @mcp.prompt(
         name="example_prompt", description="Example prompt for Stirling PDF Agent."
@@ -50,7 +48,6 @@ def register_prompts(mcp: FastMCP):
     def example_prompt(query: str) -> str:
         """Example prompt."""
         return f"Please help with '{query}' using Stirling PDF Agent"
-
 
 def register_pdf_tools(mcp: FastMCP):
     @mcp.tool(tags={"PDF"}, name="pdf_action")
@@ -114,7 +111,6 @@ def register_pdf_tools(mcp: FastMCP):
 
         return {"status": "success", "result": str(res)}
 
-
 def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Initialize and return the MCP instance, args, and middlewares."""
     load_dotenv(find_dotenv())
@@ -134,7 +130,6 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
-
 def mcp_server() -> None:
     mcp, args, middlewares, registered_tags = get_mcp_instance()
     print(f"{'stirlingpdf-agent'} MCP v{__version__}", file=sys.stderr)
@@ -152,7 +147,6 @@ def mcp_server() -> None:
     else:
         logger.error("Invalid transport", extra={"transport": args.transport})
         sys.exit(1)
-
 
 if __name__ == "__main__":
     mcp_server()

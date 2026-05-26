@@ -10,6 +10,20 @@
     - `skills/`: Directory containing modular agent skills (if applicable).
     - `agent/`: Internal agent logic and prompt templates.
 
+## Concept Registry
+
+The following core concepts are defined and traced across the Stirling PDF Agent codebase:
+
+- **`STIRLINGPDF-001`**: **MCP Server Initialization & Tool Routing**
+  - Traces FastMCP server configuration, dynamic tool toggles, and Action-Routed tool registrations.
+  - Implementations: `stirlingpdf_agent/mcp_server.py`
+- **`STIRLINGPDF-002`**: **REST API Client Communication**
+  - Traces the underlying HTTP connection, session authentication, and API wrappers for the external Stirling PDF service.
+  - Implementations: `stirlingpdf_agent/api_client.py`, `stirlingpdf_agent/api/api_client_watermark.py`
+- **`STIRLINGPDF-003`**: **Pydantic AI Graph Agent & Server Integration**
+  - Traces the control loops, agent servers, and interaction with ACP / Web UI interfaces.
+  - Implementations: `stirlingpdf_agent/agent_server.py`, `stirlingpdf_agent/agent.py`
+
 ### Architecture Diagram
 ```mermaid
 graph TD

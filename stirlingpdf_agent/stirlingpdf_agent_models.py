@@ -40,12 +40,12 @@ class AddWatermarkModel(BaseModelWrapper):
 
     watermarkType: str = Field(..., description="Type of watermark (e.g. 'text').")
     watermarkText: str = Field(..., description="The text of the watermark.")
-    alphabet: str | None = Field("roman", description="Alphabet type.")
-    fontSize: str | None = Field("30", description="Font size.")
-    rotation: str | None = Field("0", description="Rotation angle.")
-    opacity: str | None = Field("0.5", description="Opacity (0.0 to 1.0).")
-    widthSpacer: str | None = Field("50", description="Width spacing.")
-    heightSpacer: str | None = Field("50", description="Height spacing.")
+    alphabet: str | None = Field(default="roman", description="Alphabet type.")
+    fontSize: str | None = Field(default="30", description="Font size.")
+    rotation: str | None = Field(default="0", description="Rotation angle.")
+    opacity: str | None = Field(default="0.5", description="Opacity (0.0 to 1.0).")
+    widthSpacer: str | None = Field(default="50", description="Width spacing.")
+    heightSpacer: str | None = Field(default="50", description="Height spacing.")
 
     @property
     def api_parameters(self) -> dict:

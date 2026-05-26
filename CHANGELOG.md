@@ -8,15 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
--
+- Standardized concept tags and definitions mapped to `AGENTS.md` for full project traceability.
+- Expanded connection and configuration settings placeholders inside `.env` and `.env.example`.
 
-### Changed
--
-
-### Fixed
--
-
-## [0.1.30] - 2026-04-29
+## [0.14.0] - 2026-05-22
 
 ### Added
-- Initial release
+- Dynamic Action-Routed PDF MCP tools grouping capability for optimized token footprint.
+- Comprehensive test coverage filling suites achieving 100% absolute branch and statement coverage.
+- Fully verified standard security integrations including Eunomia authorization policy engines.
+
+### Changed
+- Refactored `README.md` introducing detailed Quick Start guides, environment variables documentation, and tools mapping lists.
+
+### Fixed
+- Fixed RequestsDependencyWarning handling and import reloading coverage edge cases.

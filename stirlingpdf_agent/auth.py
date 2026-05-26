@@ -17,12 +17,11 @@ def get_client():
     global _client
     if _client is None:
         base_url = os.getenv("STIRLINGPDF_URL", "http://localhost:8080")
-        token = os.getenv("STIRLINGPDF_API_KEY", "")
-        verify = os.getenv("STIRLINGPDF_AGENT_VERIFY", "True").lower() in (
-            "true",
-            "1",
-            "yes",
-        )
+        token = os.getenv("STIRLINGPDF_TOKEN") or os.getenv("STIRLINGPDF_API_KEY", "")
+        verify_env = os.getenv("STIRLINGPDF_SSL_VERIFY")
+        if verify_env is None:
+            verify_env = os.getenv("STIRLINGPDF_AGENT_VERIFY", "True")
+        verify: bool = verify_env.lower() in ("true", "1", "yes")
 
         try:
             _client = StirlingPdfApi(
