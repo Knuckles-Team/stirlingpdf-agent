@@ -36,10 +36,11 @@ from pydantic import Field
 
 from stirlingpdf_agent.auth import get_client
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"
 
 logger = get_logger(name="StirlingPdfMCP")
 logger.setLevel(logging.INFO)
+
 
 def register_prompts(mcp: FastMCP):
     @mcp.prompt(
@@ -48,6 +49,7 @@ def register_prompts(mcp: FastMCP):
     def example_prompt(query: str) -> str:
         """Example prompt."""
         return f"Please help with '{query}' using Stirling PDF Agent"
+
 
 def register_pdf_tools(mcp: FastMCP):
     @mcp.tool(tags={"PDF"}, name="pdf_action")
@@ -111,6 +113,7 @@ def register_pdf_tools(mcp: FastMCP):
 
         return {"status": "success", "result": str(res)}
 
+
 def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Initialize and return the MCP instance, args, and middlewares."""
     load_dotenv(find_dotenv())
@@ -130,6 +133,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
+
 def mcp_server() -> None:
     mcp, args, middlewares, registered_tags = get_mcp_instance()
     print(f"{'stirlingpdf-agent'} MCP v{__version__}", file=sys.stderr)
@@ -147,6 +151,7 @@ def mcp_server() -> None:
     else:
         logger.error("Invalid transport", extra={"transport": args.transport})
         sys.exit(1)
+
 
 if __name__ == "__main__":
     mcp_server()
