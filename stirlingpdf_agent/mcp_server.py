@@ -36,7 +36,7 @@ from pydantic import Field
 
 from stirlingpdf_agent.auth import get_client
 
-__version__ = "0.23.1"
+__version__ = "0.23.2"
 
 logger = get_logger(name="StirlingPdfMCP")
 logger.setLevel(logging.INFO)
