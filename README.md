@@ -15,7 +15,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/stirlingpdf-agent)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/stirlingpdf-agent)
 
-*Version: 0.24.0*
+*Version: 0.25.0*
 
 ---
 
