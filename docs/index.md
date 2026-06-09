@@ -1,193 +1,61 @@
-# Stirling PDF Agent - A2A | AG-UI | MCP
+# stirlingpdf-agent
 
-![PyPI - Version](https://img.shields.io/pypi/v/stirlingpdf-agent)
+Stirling PDF **MCP Server + A2A Agent** for the agent-utilities ecosystem — a typed,
+deterministic toolkit for performing PDF operations through a Stirling PDF service.
+
+!!! info "Official documentation"
+    This site is the canonical reference for `stirlingpdf-agent`, maintained alongside
+    every release.
+
+[![PyPI](https://img.shields.io/pypi/v/stirlingpdf-agent)](https://pypi.org/project/stirlingpdf-agent/)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
-![PyPI - Downloads](https://img.shields.io/pypi/dd/stirlingpdf-agent)
-![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/stirlingpdf-agent)
-![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/stirlingpdf-agent)
-![GitHub contributors](https://img.shields.io/github/contributors/Knuckles-Team/stirlingpdf-agent)
-![PyPI - License](https://img.shields.io/pypi/l/stirlingpdf-agent)
-![GitHub](https://img.shields.io/github/license/Knuckles-Team/stirlingpdf-agent)
-
-![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Knuckles-Team/stirlingpdf-agent)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/Knuckles-Team/stirlingpdf-agent)
-![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Knuckles-Team/stirlingpdf-agent)
-![GitHub issues](https://img.shields.io/github/issues/Knuckles-Team/stirlingpdf-agent)
-
-![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/stirlingpdf-agent)
-![GitHub language count](https://img.shields.io/github/languages/count/Knuckles-Team/stirlingpdf-agent)
-![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/stirlingpdf-agent)
-![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/Knuckles-Team/stirlingpdf-agent)
-![PyPI - Wheel](https://img.shields.io/pypi/wheel/stirlingpdf-agent)
-![PyPI - Implementation](https://img.shields.io/pypi/implementation/stirlingpdf-agent)
-
-*Version: 0.8.0*
+[![License](https://img.shields.io/pypi/l/stirlingpdf-agent)](https://github.com/Knuckles-Team/stirlingpdf-agent/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/Knuckles-Team/stirlingpdf-agent)
 
 ## Overview
 
-**Stirling PDF Agent MCP Server + A2A Agent**
+`stirlingpdf-agent` wraps the [Stirling PDF](https://www.stirlingpdf.com/) REST API
+with typed MCP tools and an optional Pydantic-AI agent server. It provides:
 
-Agent package for communicating with Stirling PDF via REST APIs.
+- **`StirlingPdfApi`** — a `requests`-based REST client over the Stirling PDF
+  `/api/v1` surface, configured from the environment via `get_client()`.
+- **An action-routed MCP tool** — a single `pdf_action` dispatcher that invokes any
+  supported operation (for example, `add_watermark`) on the connected Stirling PDF
+  service.
+- **An A2A agent server** — a Pydantic-AI agent (console script `stirlingpdf-agent`)
+  that drives the MCP tools for multi-step workflows.
 
-This repository is actively maintained - Contributions are welcome!
+The connector remains inactive when credentials are absent, degrading safely until a
+Stirling PDF service is configured.
 
-## MCP
+## Explore the documentation
 
-### Using as an MCP Server
+<div class="grid cards" markdown>
 
-The MCP Server can be run in two modes: `stdio` (for local testing) or `http` (for networked access).
+- :material-rocket-launch: **[Installation](installation.md)** — pip, source, extras, and the prebuilt Docker image.
+- :material-server-network: **[Deployment](deployment.md)** — run the MCP and agent servers, Docker Compose, Caddy + Technitium.
+- :material-console: **[Usage](usage.md)** — the MCP tool surface, the `StirlingPdfApi` client, and the CLI.
+- :material-database-cog: **[Backing Platform](platform.md)** — deploy Stirling PDF with Docker.
+- :material-sitemap: **[Architecture](overview.md)** — the agent-package pattern and tool routing.
+- :material-tag-multiple: **[Concepts](concepts.md)** — the `CONCEPT:STIRLINGPDF-*` registry.
 
-#### Environment Variables
+</div>
 
-*   `STIRLINGPDF_URL`: The URL of the target service.
-*   `STIRLINGPDF_API_KEY`: The API token or access token.
-
-#### Run in stdio mode (default):
-```bash
-export STIRLINGPDF_URL="http://localhost:8080"
-export STIRLINGPDF_API_KEY="your_token"
-stirlingpdf-mcp --transport "stdio"
-```
-
-#### Run in HTTP mode:
-```bash
-export STIRLINGPDF_URL="http://localhost:8080"
-export STIRLINGPDF_API_KEY="your_token"
-stirlingpdf-mcp --transport "http" --host "0.0.0.0" --port "8000"
-```
-
-## A2A Agent
-
-### Run A2A Server
-```bash
-export STIRLINGPDF_URL="http://localhost:8080"
-export STIRLINGPDF_API_KEY="your_token"
-stirlingpdf-agent --provider openai --model-id gpt-4o --api-key sk-...
-```
-
-## Docker
-
-### Build
+## Quick start
 
 ```bash
-docker build -t stirlingpdf-agent .
+pip install stirlingpdf-agent
+stirlingpdf-mcp                       # stdio MCP server (default transport)
 ```
 
-### Run MCP Server
+Connect it to a Stirling PDF service:
 
 ```bash
-docker run -d \
-  --name stirlingpdf-agent \
-  -p 8000:8000 \
-  -e TRANSPORT=http \
-  -e STIRLINGPDF_URL="http://your-service:8080" \
-  -e STIRLINGPDF_API_KEY="your_token" \
-  knucklessg1/stirlingpdf-agent:latest
+export STIRLINGPDF_URL=http://your-stirlingpdf:8080
+export STIRLINGPDF_API_KEY=your_token
+stirlingpdf-mcp --transport streamable-http --host 0.0.0.0 --port 8000
 ```
 
-### Deploy with Docker Compose
-
-```yaml
-services:
-  stirlingpdf-agent:
-    image: knucklessg1/stirlingpdf-agent:latest
-    environment:
-      - HOST=0.0.0.0
-      - PORT=8000
-      - TRANSPORT=http
-      - STIRLINGPDF_URL=http://your-service:8080
-      - STIRLINGPDF_API_KEY=your_token
-    ports:
-      - 8000:8000
-```
-
-#### Configure `mcp.json` for AI Integration (e.g. Claude Desktop)
-
-```json
-{
-  "mcpServers": {
-    "stirlingpdf": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--with",
-        "stirlingpdf-agent",
-        "stirlingpdf-mcp"
-      ],
-      "env": {
-        "STIRLINGPDF_URL": "http://your-service:8080",
-        "STIRLINGPDF_API_KEY": "your_token"
-      }
-    }
-  }
-}
-```
-
-## Install Python Package
-
-```bash
-python -m pip install stirlingpdf-agent
-```
-```bash
-uv pip install stirlingpdf-agent
-```
-
-## Repository Owners
-
-<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=Knucklessg1&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
-
-![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
-![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
-
-
-## MCP Configuration Examples
-
-### 1. Standard IO (stdio) Deployment
-
-```json
-{
-  "mcpServers": {
-    "stirlingpdf-agent": {
-      "command": "uv",
-      "args": [
-        "run",
-        "stirlingpdf-mcp"
-      ],
-      "env": {
-        "PDFTOOL": "True",
-        "STIRLINGPDF_AGENT_VERIFY": "<YOUR_STIRLINGPDF_AGENT_VERIFY>",
-        "STIRLINGPDF_API_KEY": "<YOUR_STIRLINGPDF_API_KEY>",
-        "STIRLINGPDF_URL": "<YOUR_STIRLINGPDF_URL>"
-      }
-    }
-  }
-}
-```
-
-### 2. Streamable HTTP (SSE) Deployment
-
-```json
-{
-  "mcpServers": {
-    "stirlingpdf-agent": {
-      "command": "uv",
-      "args": [
-        "run",
-        "stirlingpdf-mcp",
-        "--transport",
-        "http",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8000"
-      ],
-      "env": {
-        "PDFTOOL": "True",
-        "STIRLINGPDF_AGENT_VERIFY": "<YOUR_STIRLINGPDF_AGENT_VERIFY>",
-        "STIRLINGPDF_API_KEY": "<YOUR_STIRLINGPDF_API_KEY>",
-        "STIRLINGPDF_URL": "<YOUR_STIRLINGPDF_URL>"
-      }
-    }
-  }
-}
-```
+See **[Installation](installation.md)** and **[Deployment](deployment.md)** for the
+full matrix (PyPI extras, Docker image, all transports, the agent server, reverse
+proxy, DNS).

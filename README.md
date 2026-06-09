@@ -17,6 +17,10 @@
 
 *Version: 0.28.0*
 
+> **Documentation** — Installation, deployment, usage across the MCP, API, and CLI
+> interfaces, and guidance for provisioning the Stirling PDF service are maintained in
+> the [official documentation](https://knuckles-team.github.io/stirlingpdf-agent/).
+
 ---
 
 ## 📚 Table of Contents
@@ -33,7 +37,7 @@
 - [Environment Variables Reference](#environment-variables-reference)
 - [Security & Governance](#security--governance)
 - [Developer & Contribute Guidelines](#contribute)
-- [Documentation Reference](#documentation-reference)
+- [Documentation](#documentation)
 
 ---
 
@@ -314,9 +318,19 @@ Contributions are welcome! Please ensure code quality by executing local checks 
 
 ---
 
-## Documentation Reference
+## Documentation
 
-Extensive materials are available in the repository for developer guidance:
-- Standard MCP Server Details: [docs/mcp.md](docs/mcp.md)
-- Complete Client & SDK details: [docs/index.md](docs/index.md)
-- Agent Graph Orchestration: [docs/agent.md](docs/agent.md)
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/stirlingpdf-agent/) and is
+the recommended reference for installation, deployment, and day-to-day operation.
+
+| Page | Contents |
+|---|---|
+| [Installation](https://knuckles-team.github.io/stirlingpdf-agent/installation/) | pip, source, extras, prebuilt Docker image |
+| [Deployment](https://knuckles-team.github.io/stirlingpdf-agent/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
+| [Usage](https://knuckles-team.github.io/stirlingpdf-agent/usage/) | the MCP tools, the `StirlingPdfApi` client, the CLI |
+| [Backing Platform](https://knuckles-team.github.io/stirlingpdf-agent/platform/) | deploy Stirling PDF with Docker |
+| [Overview](https://knuckles-team.github.io/stirlingpdf-agent/overview/) | the agent-package pattern and tool routing |
+| [Concepts](https://knuckles-team.github.io/stirlingpdf-agent/concepts/) | concept registry (`CONCEPT:STIRLINGPDF-*`) |
+
+`AGENTS.md` is the canonical contributor/agent guidance.
