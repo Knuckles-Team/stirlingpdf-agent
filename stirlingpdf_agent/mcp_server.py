@@ -28,6 +28,7 @@ from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
     dispatch,
+    run_blocking,
 )
 from dotenv import find_dotenv, load_dotenv
 from fastmcp import Context, FastMCP
@@ -106,7 +107,8 @@ def register_pdf_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
-        return dispatch(
+        return await run_blocking(
+            dispatch,
             client,
             action,
             kwargs,
