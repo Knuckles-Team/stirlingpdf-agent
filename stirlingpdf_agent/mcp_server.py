@@ -27,6 +27,7 @@ from typing import Any
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
+    dispatch,
 )
 from dotenv import find_dotenv, load_dotenv
 from fastmcp import Context, FastMCP
@@ -51,11 +52,38 @@ def register_prompts(mcp: FastMCP):
         return f"Please help with '{query}' using Stirling PDF Agent"
 
 
+def _coerce_pdf_result(res: Any) -> dict:
+    """Normalize a Stirling PDF API result into a JSON-safe dict."""
+    if hasattr(res, "dict") and callable(res.dict):
+        res_dict = res.dict()
+        if isinstance(res_dict, dict):
+            # If Response wraps binary data, encode it as base64 and remove requests.Response
+            if "data" in res_dict and isinstance(res_dict["data"], bytes):
+                import base64
+
+                res_dict["data"] = base64.b64encode(res_dict["data"]).decode("utf-8")
+            if "response" in res_dict:
+                res_dict.pop("response", None)
+            return res_dict
+    elif hasattr(res, "model_dump") and callable(res.model_dump):
+        res_dict = res.model_dump()
+        if isinstance(res_dict, dict):
+            if "data" in res_dict and isinstance(res_dict["data"], bytes):
+                import base64
+
+                res_dict["data"] = base64.b64encode(res_dict["data"]).decode("utf-8")
+            if "response" in res_dict:
+                res_dict.pop("response", None)
+            return res_dict
+
+    return {"status": "success", "result": str(res)}
+
+
 def register_pdf_tools(mcp: FastMCP):
     @mcp.tool(tags={"PDF"}, name="pdf_action")
     async def pdf_action(
         action: str = Field(
-            description="The action/method name to execute on Stirling PDF API (e.g. add_watermark)"
+            description="The action/method name to execute on Stirling PDF API (e.g. add_watermark). Use action='list_actions' to discover all available actions."
         ),
         params_json: str = Field(
             default="{}",
@@ -78,40 +106,13 @@ def register_pdf_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
-        # Dynamic method lookup
-        method = getattr(client, action, None)
-        if method is None:
-            raise ValueError(f"Unknown action '{action}' on StirlingPdfApi")
-
-        res = method(**kwargs)
-
-        if hasattr(res, "dict") and callable(res.dict):
-            res_dict = res.dict()
-            if isinstance(res_dict, dict):
-                # If Response wraps binary data, encode it as base64 and remove requests.Response
-                if "data" in res_dict and isinstance(res_dict["data"], bytes):
-                    import base64
-
-                    res_dict["data"] = base64.b64encode(res_dict["data"]).decode(
-                        "utf-8"
-                    )
-                if "response" in res_dict:
-                    res_dict.pop("response", None)
-                return res_dict
-        elif hasattr(res, "model_dump") and callable(res.model_dump):
-            res_dict = res.model_dump()
-            if isinstance(res_dict, dict):
-                if "data" in res_dict and isinstance(res_dict["data"], bytes):
-                    import base64
-
-                    res_dict["data"] = base64.b64encode(res_dict["data"]).decode(
-                        "utf-8"
-                    )
-                if "response" in res_dict:
-                    res_dict.pop("response", None)
-                return res_dict
-
-        return {"status": "success", "result": str(res)}
+        return dispatch(
+            client,
+            action,
+            kwargs,
+            service="stirlingpdf-agent",
+            result_coercer=_coerce_pdf_result,
+        )
 
 
 def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
