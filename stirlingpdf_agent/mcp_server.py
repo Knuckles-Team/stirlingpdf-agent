@@ -28,9 +28,9 @@ from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
     dispatch,
+    load_config,
     run_blocking,
 )
-from dotenv import find_dotenv, load_dotenv
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from fastmcp.utilities.logging import get_logger
@@ -119,7 +119,7 @@ def register_pdf_tools(mcp: FastMCP):
 
 def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Initialize and return the MCP instance, args, and middlewares."""
-    load_dotenv(find_dotenv())
+    load_config()
     args, mcp, middlewares = create_mcp_server(
         name="Stirling PDF Agent MCP",
         version=__version__,
