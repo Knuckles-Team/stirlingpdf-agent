@@ -20,15 +20,14 @@ Provides tools to manipulate and edit PDF files (e.g. adding watermarks).
 """
 
 import logging
-import os
 import sys
 from typing import Any
 
-from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
     dispatch,
     load_config,
+    register_tool_surface,
     run_blocking,
 )
 from fastmcp import Context, FastMCP
@@ -36,6 +35,7 @@ from fastmcp.dependencies import Depends
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
+from stirlingpdf_agent.api_client import StirlingPdfApi
 from stirlingpdf_agent.auth import get_client
 
 __version__ = "0.33.0"
@@ -126,14 +126,18 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         instructions="Stirling PDF Agent MCP Server",
     )
 
-    if to_boolean(os.getenv("PDFTOOL", "True")):
-        register_pdf_tools(mcp)
+    registered_tags = register_tool_surface(
+        mcp,
+        client_cls=StirlingPdfApi,
+        get_client=get_client,
+        service="stirlingpdf-agent",
+        registrars=[register_pdf_tools],
+    )
 
     register_prompts(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
-    registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
 

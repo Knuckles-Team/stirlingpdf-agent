@@ -1,7 +1,6 @@
 #!/usr/bin/python
-import os
-
 import urllib3
+from agent_utilities.core.config import setting
 
 from stirlingpdf_agent.api_client import StirlingPdfApi
 
@@ -16,12 +15,11 @@ def get_client():
     """Get or create a singleton API client instance."""
     global _client
     if _client is None:
-        base_url = os.getenv("STIRLINGPDF_URL", "http://localhost:8080")
-        token = os.getenv("STIRLINGPDF_TOKEN") or os.getenv("STIRLINGPDF_API_KEY", "")
-        verify_env = os.getenv("STIRLINGPDF_SSL_VERIFY")
-        if verify_env is None:
-            verify_env = os.getenv("STIRLINGPDF_AGENT_VERIFY", "True")
-        verify: bool = verify_env.lower() in ("true", "1", "yes")
+        base_url = setting("STIRLINGPDF_URL", "http://localhost:8080")
+        token = setting("STIRLINGPDF_TOKEN", "") or setting("STIRLINGPDF_API_KEY", "")
+        verify = bool(
+            setting("STIRLINGPDF_SSL_VERIFY", setting("STIRLINGPDF_AGENT_VERIFY", True))
+        )
 
         try:
             _client = StirlingPdfApi(
