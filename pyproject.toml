@@ -27,6 +27,12 @@ test = [
 stirlingpdf-mcp = "stirlingpdf_agent.mcp_server:mcp_server"
 stirlingpdf-agent = "stirlingpdf_agent.agent_server:agent_server"
 
+[project.entry-points."agent_utilities.skill_providers"]
+stirlingpdf-agent = "stirlingpdf_agent.skills"
+
+[project.entry-points."agent_utilities.prompt_providers"]
+stirlingpdf-agent = "stirlingpdf_agent.prompts"
+
 [tool.setuptools]
 include-package-data = true
 
@@ -45,7 +51,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-stirlingpdf_agent = [ "mcp_config.json", "agent_data/**", "skills/**",]
+stirlingpdf_agent = [ "mcp_config.json", "agent_data/**", "skills/**", "prompts/**",]
 
 [tool.ruff.lint]
 select = [ "E", "F", "I", "UP", "B",]
