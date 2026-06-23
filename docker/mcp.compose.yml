@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   stirlingpdf-agent-mcp:
-    image: knucklessg1/stirlingpdf-agent:latest
+    image: knucklessg1/stirlingpdf-agent:mcp
     container_name: stirlingpdf-agent-mcp
     hostname: stirlingpdf-agent-mcp
     restart: always
