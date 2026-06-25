@@ -58,15 +58,51 @@
 
 ## Installation
 
-Install the Python package locally:
+Pick the extra that matches what you want to run:
+
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `stirlingpdf-agent[mcp]` | Slim MCP server only (`agent-utilities[mcp]` — FastMCP/FastAPI) | You only run the **MCP server** (smallest install / image) |
+| `stirlingpdf-agent[agent]` | Full agent runtime (`agent-utilities[agent,logfire]` — Pydantic AI + the epistemic-graph engine) | You run the **integrated agent** |
+| `stirlingpdf-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
-# Using uv (highly recommended for speed and isolation)
-uv pip install stirlingpdf-agent[all]
+# MCP server only (recommended for tool hosting — slim deps)
+uv pip install "stirlingpdf-agent[mcp]"
 
-# Using standard pip
-python -m pip install stirlingpdf-agent[all]
+# Full agent runtime (Pydantic AI + epistemic-graph engine)
+uv pip install "stirlingpdf-agent[agent]"
+
+# Everything (development)
+uv pip install "stirlingpdf-agent[all]"      # or: python -m pip install "stirlingpdf-agent[all]"
 ```
+
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `knucklessg1/stirlingpdf-agent:mcp` | `--target mcp` | `stirlingpdf-agent[mcp]` — **slim**, no engine/`pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` | `stirlingpdf-mcp` |
+| `knucklessg1/stirlingpdf-agent:latest` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **full** agent runtime + epistemic-graph engine | `stirlingpdf-agent` |
+
+```bash
+docker build --target mcp   -t knucklessg1/stirlingpdf-agent:mcp    docker/   # slim MCP server
+docker build --target agent -t knucklessg1/stirlingpdf-agent:latest docker/   # full agent
+```
+
+`docker/mcp.compose.yml` runs the slim `:mcp` server; `docker/agent.compose.yml` runs the
+agent (`:latest`) with a co-located `:mcp` sidecar.
+
+### Knowledge-graph database (`epistemic-graph`)
+
+The **full agent** (`[agent]` / `:latest`) embeds the **epistemic-graph** engine (pulled in
+transitively via `agent-utilities[agent]`). For production — or to share one knowledge graph
+across multiple agents — run **epistemic-graph as its own database container** and point the
+agent at it instead of embedding it. Deployment recipes (single-node + Raft HA), connection
+config, and the full database architecture (with diagrams) are documented in the
+[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
+The slim `[mcp]` server does **not** require the database.
 
 ---
 
@@ -142,6 +178,14 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ### MCP Configuration Examples
 
+> **Install the slim `[mcp]` extra.** All examples below install
+> `stirlingpdf-agent[mcp]` — the MCP-server extra that pulls only the FastMCP /
+> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
+> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
+> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
+> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
+> (see [Installation](#installation)).
+
 #### 1. stdio Transport (Recommended for local IDEs e.g., Cursor, Claude Desktop)
 Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
 
@@ -152,7 +196,7 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
       "command": "uvx",
       "args": [
         "--from",
-        "stirlingpdf-agent",
+        "stirlingpdf-agent[mcp]",
         "stirlingpdf-mcp"
       ],
       "env": {
@@ -176,7 +220,7 @@ Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx
       "command": "uvx",
       "args": [
         "--from",
-        "stirlingpdf-agent",
+        "stirlingpdf-agent[mcp]",
         "stirlingpdf-mcp"
       ],
       "env": {
@@ -203,8 +247,15 @@ docker run -d \
   -e PORT=8000 \
   -e STIRLINGPDF_URL="http://your-service:8080" \
   -e STIRLINGPDF_API_KEY="your_api_key_here" \
-  knucklessg1/stirlingpdf-agent:latest
+  knucklessg1/stirlingpdf-agent:mcp
 ```
+
+> The `:mcp` tag is the **slim MCP-server image** (built from
+> `docker/Dockerfile --target mcp`, installing `stirlingpdf-agent[mcp]`). The default
+> `:latest` tag is the **full agent image** (`--target agent`, `stirlingpdf-agent[agent]`)
+> which also bundles the Pydantic AI agent and the epistemic-graph engine — use it
+> when you run `stirlingpdf-agent` (the agent), not just the MCP server. See
+> [Container images](#container-images-mcp-vs-agent).
 
 ---
 
