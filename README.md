@@ -146,11 +146,24 @@ The table below is auto-generated from the MCP server — do not edit by hand.
 
 <!-- MCP-TOOLS-TABLE:START -->
 
+#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
 | `pdf_action` | `PDFTOOL` | Execute any Stirling PDF API action dynamically. |
 
-_1 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>1 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `stirlingpdf_add_watermark` | `WATERMARK_CLIENTTOOL` | Add a watermark to a PDF file. |
+
+</details>
+
+_1 action-routed tool(s) (default) · 1 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 ---
@@ -360,7 +373,9 @@ services:
 | `PDFTOOL` | `True` |  |
 | `STIRLINGPDF_URL` | `http://localhost:8080` |  |
 | `STIRLINGPDF_API_KEY` | — |  |
+| `STIRLINGPDF_TOKEN` | — | alternate to STIRLINGPDF_API_KEY (bearer token) |
 | `STIRLINGPDF_AGENT_VERIFY` | `True` |  |
+| `STIRLINGPDF_SSL_VERIFY` | `True` | alternate to STIRLINGPDF_AGENT_VERIFY (TLS cert verification) |
 
 #### Inherited agent-utilities variables (apply to every connector)
 
@@ -381,7 +396,7 @@ services:
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_15 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_17 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
  Reference
 
