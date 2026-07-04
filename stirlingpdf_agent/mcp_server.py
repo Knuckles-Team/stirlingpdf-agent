@@ -116,6 +116,30 @@ def register_pdf_tools(mcp: FastMCP):
             result_coercer=_coerce_pdf_result,
         )
 
+    @mcp.tool(tags={"PDF", "kg"}, name="stirlingpdf_ingest_tools")
+    async def stirlingpdf_ingest_tools(
+        client=Depends(get_client),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> dict:
+        """Natively ingest this Stirling instance's available actions as :PdfTool nodes.
+
+        Wire-First: discovers the available actions via the real client (``list_actions``)
+        and pushes them into epistemic-graph as typed ``:PdfTool`` nodes. Best-effort —
+        returns ``{"ingested": None}`` when no engine is reachable.
+        CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        """
+        if ctx:
+            await ctx.info("Discovering + ingesting Stirling PDF tools...")
+        from agent_utilities.mcp.action_dispatch import public_actions
+
+        from stirlingpdf_agent.kg_ingest import ingest_actions
+
+        actions = await run_blocking(public_actions, client)
+        result = await run_blocking(ingest_actions, list(actions))
+        return {"listed": len(actions), "ingested": result}
+
 
 def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Initialize and return the MCP instance, args, and middlewares."""

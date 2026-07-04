@@ -31,6 +31,12 @@ stirlingpdf-agent = "stirlingpdf_agent.agent_server:agent_server"
 [project.entry-points."agent_utilities.skill_providers"]
 stirlingpdf-agent = "stirlingpdf_agent.skills"
 
+[project.entry-points."agent_utilities.ontology_providers"]
+stirlingpdf-agent = "stirlingpdf_agent.ontology"
+
+[project.entry-points."agent_utilities.source_connector_providers"]
+stirlingpdf-agent = "stirlingpdf_agent.connectors"
+
 [project.entry-points."agent_utilities.prompt_providers"]
 stirlingpdf-agent = "stirlingpdf_agent.prompts"
 
@@ -52,7 +58,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-stirlingpdf_agent = [ "mcp_config.json", "agent_data/**", "skills/**", "prompts/**",]
+stirlingpdf_agent = [ "mcp_config.json", "agent_data/**", "skills/**", "prompts/**", "ontology/**", "connectors/**",]
 
 [tool.ruff.lint]
 select = [ "E", "F", "I", "UP", "B",]
