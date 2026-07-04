@@ -16,13 +16,13 @@
 
 The following core concepts are defined and traced across the Stirling PDF Agent codebase:
 
-- **`STIRLINGPDF-001`**: **MCP Server Initialization & Tool Routing**
+- **`SP-OS.governance.stirlingpdf`**: **MCP Server Initialization & Tool Routing**
   - Traces FastMCP server configuration, dynamic tool toggles, and Action-Routed tool registrations.
   - Implementations: `stirlingpdf_agent/mcp_server.py`
-- **`STIRLINGPDF-002`**: **REST API Client Communication**
+- **`SP-OS.scaling.stirlingpdf`**: **REST API Client Communication**
   - Traces the underlying HTTP connection, session authentication, and API wrappers for the external Stirling PDF service.
   - Implementations: `stirlingpdf_agent/api_client.py`, `stirlingpdf_agent/api/api_client_watermark.py`
-- **`STIRLINGPDF-003`**: **Pydantic AI Graph Agent & Server Integration**
+- **`SP-OS.scaling.stirlingpdf-2`**: **Pydantic AI Graph Agent & Server Integration**
   - Traces the control loops, agent servers, and interaction with ACP / Web UI interfaces.
   - Implementations: `stirlingpdf_agent/agent_server.py`, `stirlingpdf_agent/agent.py`
 
@@ -256,7 +256,7 @@ alone).
 Working in parallel with other sessions/worktrees? **Reserve a concept id before you write its `CONCEPT:` marker** so two sessions never collide:
 
 ```bash
-agent-utilities --json concept reserve --ns KG-2   # or a package prefix, e.g. KEY
+agent-utilities --json concept reserve --ns EG-KG.compute.backend   # or a package prefix, e.g. KEY
 ```
 
 Full protocol (ledger, merge=union, reconcile, MCP/REST): <https://knuckles-team.github.io/agent-utilities/concept_coordination/>

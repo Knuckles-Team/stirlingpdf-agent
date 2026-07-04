@@ -55,7 +55,7 @@ def test_package_availabilities_mcp_disabled():
     """
     Test package availability with MCP disabled.
 
-    CONCEPT:STIRLINGPDF-001
+    CONCEPT:SP-OS.governance.stirlingpdf
     """
     from stirlingpdf_agent import __getattr__
 
@@ -87,7 +87,7 @@ def test_main():
     """
     Test main entrypoint.
 
-    CONCEPT:STIRLINGPDF-003
+    CONCEPT:SP-OS.scaling.stirlingpdf-2
     """
     with patch("stirlingpdf_agent.agent_server.agent_server") as mock_server:
         runpy.run_module("stirlingpdf_agent", run_name="__main__")
@@ -152,7 +152,7 @@ def test_add_watermark_success(tmp_path):
     """
     Test add watermark REST API client call.
 
-    CONCEPT:STIRLINGPDF-002
+    CONCEPT:SP-OS.scaling.stirlingpdf
     """
     pdf_file = tmp_path / "test.pdf"
     pdf_file.write_bytes(b"%PDF-1.4 dummy pdf content")
