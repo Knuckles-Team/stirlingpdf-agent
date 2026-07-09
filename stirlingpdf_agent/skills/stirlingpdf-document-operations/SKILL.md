@@ -1,5 +1,6 @@
 ---
 name: stirlingpdf-document-operations
+skill_type: skill
 description: >-
   Run any Stirling PDF operation — merge, split, rotate, convert, compress, OCR,
   metadata, and document-security actions (password / sanitize / stamp) — through

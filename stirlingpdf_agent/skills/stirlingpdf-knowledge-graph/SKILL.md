@@ -1,5 +1,6 @@
 ---
 name: stirlingpdf-knowledge-graph
+skill_type: skill
 description: >-
   Natively ingest Stirling PDF activity into the epistemic-graph knowledge graph —
   available actions as :PdfTool nodes, executed operations as :PdfOperation nodes,

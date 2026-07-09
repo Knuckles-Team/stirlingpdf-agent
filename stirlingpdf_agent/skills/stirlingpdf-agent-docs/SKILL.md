@@ -1,5 +1,6 @@
 ---
 name: stirlingpdf-agent-docs
+skill_type: skill
 description: Comprehensive reference documentation for Stirlingpdf Agent Docs.
 crawl_depth: 2
 source_url: https://docs.stirlingpdf.com

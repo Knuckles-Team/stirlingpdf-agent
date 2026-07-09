@@ -1,5 +1,6 @@
 ---
 name: stirlingpdf-watermarking
+skill_type: skill
 description: >-
   Stamp text (or image) watermarks onto a PDF via the stirlingpdf-agent MCP
   server's dispatch tool. Use when the agent must brand, mark DRAFT/CONFIDENTIAL,
