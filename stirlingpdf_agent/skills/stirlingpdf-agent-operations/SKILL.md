@@ -1,5 +1,6 @@
 ---
 name: stirlingpdf-agent-operations
+skill_type: skill
 description: >-
   Operate stirlingpdf-agent through its governed MCP and GraphOS capabilities, including stirlingpdf agent docs, stirlingpdf document operations, stirlingpdf knowledge graph, stirlingpdf watermarking. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
 ---
