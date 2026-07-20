@@ -261,8 +261,8 @@
   },
   {
     "id": "T021",
-    "title": "[Environment Variables] 4 Python env vars not in .env.example: PDFTOOL, STIRLINGPDF_AGENT_VERIFY, STIRLI",
-    "description": "4 Python env vars not in .env.example: PDFTOOL, STIRLINGPDF_AGENT_VERIFY, STIRLINGPDF_API_KEY, STIRLINGPDF_URL",
+    "title": "[Environment Variables] 4 Python env vars not in .env.example: PDFTOOL, TLS_PROFILE, STIRLI",
+    "description": "4 Python env vars not in .env.example: PDFTOOL, TLS_PROFILE, STIRLINGPDF_API_KEY, STIRLINGPDF_URL",
     "domain": "Environment Variables",
     "priority": "P2-Medium",
     "effort": "Medium",

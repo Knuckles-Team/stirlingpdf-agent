@@ -33,7 +33,6 @@ from stirlingpdf_agent.api_client import StirlingPdfApi
 api = StirlingPdfApi(
     base_url="http://your-stirlingpdf:8080",
     token="your_token",
-    verify=True,
 )
 
 # Operate on a PDF (returns a Response carrying the resulting bytes)
@@ -51,8 +50,9 @@ api = get_client()        # reads STIRLINGPDF_* from the environment / .env
 result = api.add_watermark("report.pdf", watermarkText="DRAFT")
 ```
 
-`get_client()` reads `STIRLINGPDF_URL`, `STIRLINGPDF_API_KEY` (or `STIRLINGPDF_TOKEN`),
-and `STIRLINGPDF_AGENT_VERIFY` from the environment, and returns a singleton client.
+`get_client()` reads `STIRLINGPDF_URL` and `STIRLINGPDF_API_KEY`, resolves its
+mandatory verified TLS policy through
+`AgentConfig`, and returns a singleton client.
 
 ## As a CLI
 

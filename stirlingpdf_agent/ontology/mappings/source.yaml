@@ -1,0 +1,20 @@
+schema_version: '1'
+connector: stirlingpdf-agent
+ontology_source: stirlingpdf
+sync:
+- preset: stirlingpdf-tools
+  server: stirlingpdf-agent
+  tool: stirlingpdf_ingest_tools
+  action: get
+  records_path: actions
+  id_field: name
+  title_field: name
+  text_field: name
+  updated_field: null
+  doc_type: pdf_tool
+  tool_schema_sha256: 4ac4f5eebe5fa6a2b385dccda4fd2adfe46b52b50586df9f24b2669d6ab9c7d4
+governance:
+  default_acl: quarantine
+  identity: opaque-reference
+  tenant: required-at-materialization
+  provenance: required-at-materialization

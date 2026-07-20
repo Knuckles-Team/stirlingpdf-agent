@@ -55,7 +55,7 @@ def test_package_availabilities_mcp_disabled():
     """
     Test package availability with MCP disabled.
 
-    CONCEPT:STIRLINGPDF-001
+    CONCEPT:SP-OS.governance.stirlingpdf
     """
     from stirlingpdf_agent import __getattr__
 
@@ -87,7 +87,7 @@ def test_main():
     """
     Test main entrypoint.
 
-    CONCEPT:STIRLINGPDF-003
+    CONCEPT:SP-OS.scaling.stirlingpdf-2
     """
     with patch("stirlingpdf_agent.agent_server.agent_server") as mock_server:
         runpy.run_module("stirlingpdf_agent", run_name="__main__")
@@ -122,11 +122,15 @@ def test_api_client_base_missing_url():
         StirlingPdfApi(base_url=None)
 
 
-def test_api_client_base_verify_false():
-    with patch("urllib3.disable_warnings") as mock_disable:
-        client = StirlingPdfApi(base_url="http://example.com", verify=False)
-        assert client.verify is False
-        mock_disable.assert_called_once()
+def test_api_client_base_applies_tls_profile():
+    profile = MagicMock()
+    profile.configure_requests_session.side_effect = lambda session: session
+    client = StirlingPdfApi(
+        base_url="https://service.invalid",
+        tls_profile=profile,
+    )
+    assert client.tls_profile is profile
+    profile.configure_requests_session.assert_called_once()
 
 
 def test_api_client_base_with_token():
@@ -152,7 +156,7 @@ def test_add_watermark_success(tmp_path):
     """
     Test add watermark REST API client call.
 
-    CONCEPT:STIRLINGPDF-002
+    CONCEPT:SP-OS.scaling.stirlingpdf
     """
     pdf_file = tmp_path / "test.pdf"
     pdf_file.write_bytes(b"%PDF-1.4 dummy pdf content")
@@ -241,22 +245,25 @@ def test_auth_get_client():
         {
             "STIRLINGPDF_URL": "http://test-url",
             "STIRLINGPDF_API_KEY": "test-key",
-            "STIRLINGPDF_AGENT_VERIFY": "false",
         },
     ):
-        client = get_client()
+        profile = MagicMock()
+        client = get_client(profile)
         assert client.base_url == "http://test-url"
         assert client.api_key == "test-key"
-        assert client.verify is False
+        assert client.tls_profile is profile
 
 
 def test_auth_get_client_auth_error():
     import stirlingpdf_agent.auth as auth_mod
 
     auth_mod._client = None
-    with patch(
-        "stirlingpdf_agent.auth.StirlingPdfApi",
-        side_effect=AuthError("Mock auth error"),
+    with (
+        patch.dict(os.environ, {"STIRLINGPDF_URL": "https://service.invalid"}),
+        patch(
+            "stirlingpdf_agent.auth.StirlingPdfApi",
+            side_effect=AuthError("Mock auth error"),
+        ),
     ):
         with pytest.raises(RuntimeError) as exc_info:
             get_client()

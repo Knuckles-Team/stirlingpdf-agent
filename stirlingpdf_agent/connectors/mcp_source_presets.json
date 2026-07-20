@@ -1,0 +1,13 @@
+{
+  "_comment": "Tier-1 mcp_tool source preset for stirlingpdf-agent (AU-KG.ingest.mcp-tool-connector). Syncs this Stirling PDF instance's available actions into the KG as :PdfTool documents via the stirlingpdf-agent MCP server's Wire-First ingest tool. Contributed presets win over the central MCP_TOOL_PRESETS.",
+  "stirlingpdf-tools": {
+    "server": "stirlingpdf-agent",
+    "tool": "stirlingpdf_ingest_tools",
+    "action": "get",
+    "records_path": "actions",
+    "id_field": "name",
+    "title_field": "name",
+    "text_field": "name",
+    "doc_type": "pdf_tool"
+  }
+}

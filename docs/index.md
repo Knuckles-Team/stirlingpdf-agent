@@ -51,7 +51,7 @@ stirlingpdf-mcp                       # stdio MCP server (default transport)
 Connect it to a Stirling PDF service:
 
 ```bash
-export STIRLINGPDF_URL=http://your-stirlingpdf:8080
+export STIRLINGPDF_URL=<configured-endpoint>
 export STIRLINGPDF_API_KEY=your_token
 stirlingpdf-mcp --transport streamable-http --host 0.0.0.0 --port 8000
 ```

@@ -24,7 +24,7 @@ Install an extra for additional capabilities:
 
 | Extra | Install | Pulls in |
 |---|---|---|
-| `agent` | `pip install "stirlingpdf-agent[agent]"` | Pydantic-AI agent server + Logfire tracing (`agent-utilities[agent,logfire]`) |
+| `agent` | `pip install "stirlingpdf-agent[agent]"` | Pydantic-AI agent server + Logfire tracing (`agent-utilities[agent-runtime,logfire]`) |
 | `all` | `pip install "stirlingpdf-agent[all]"` | The MCP runtime, the agent server, and Logfire tracing |
 | `test` | `pip install "stirlingpdf-agent[test]"` | `pytest`, `pytest-asyncio`, `pytest-cov`, `pytest-xdist` |
 
@@ -50,16 +50,16 @@ uv run stirlingpdf-mcp
 
 ## Prebuilt Docker image
 
-A multi-stage, slim image is published on every release (entrypoint
+A multi-stage runtime image is published on every release (entrypoint
 `stirlingpdf-mcp`):
 
 ```bash
-docker pull knucklessg1/stirlingpdf-agent:latest
+docker pull example/stirlingpdf-agent@sha256:<digest>
 
 docker run --rm -i \
-  -e STIRLINGPDF_URL=http://your-stirlingpdf:8080 \
+  -e STIRLINGPDF_URL=<configured-endpoint> \
   -e STIRLINGPDF_API_KEY=your_token \
-  knucklessg1/stirlingpdf-agent:latest        # stdio transport (default)
+  example/stirlingpdf-agent@sha256:<digest>        # stdio transport (default)
 ```
 
 For an HTTP server with a published port and the agent server, see

@@ -36,8 +36,8 @@
 - **FR-019**: Low fixture usage: only 17% of tests use fixtures
 - **FR-020**: No @pytest.mark.parametrize usage — consider data-driven tests
 - **FR-021**: 3 tests have no assertions
-- **FR-022**: Undocumented env vars: OTEL_EXPORTER_OTLP_ENDPOINT, STIRLINGPDF_SSL_VERIFY, STIRLINGPDF_TOKEN
-- **FR-023**: 2 Python env vars not in .env.example: STIRLINGPDF_SSL_VERIFY, STIRLINGPDF_TOKEN
+- **FR-022**: Transport-security variables are documented in README.md and `.env.example`
+- **FR-023**: Runtime TLS profile references are documented in `.env.example`
 - **FR-024**: Analysis error: No module named 'agent_utilities.knowledge_graph'
 
 ## Success Criteria

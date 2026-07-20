@@ -43,5 +43,5 @@ Skipped informational: 5
   - Priority: P2-Medium | Effort: Medium
 - [ ] [P] **T020** [Environment Variables] Undocumented env vars: ALLOWED_CLIENT_REDIRECT_URIS, AUTH_TYPE, EUNOMIA_POLICY_F
   - Priority: P2-Medium | Effort: Medium
-- [ ] [P] **T021** [Environment Variables] 4 Python env vars not in .env.example: PDFTOOL, STIRLINGPDF_AGENT_VERIFY, STIRLI
+- [ ] [P] **T021** [Environment Variables] 4 Python env vars not in .env.example: PDFTOOL, TLS_PROFILE, STIRLI
   - Priority: P2-Medium | Effort: Medium

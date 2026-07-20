@@ -72,7 +72,7 @@ Recommended for server deployments and organizations:
 docker run -d \
   -p 8080:8080 \
   -v ./stirling-data:/configs \
-  stirlingtools/stirling-pdf:latest
+  stirlingtools/stirling-pdf@sha256:<digest>
 
 ```
 

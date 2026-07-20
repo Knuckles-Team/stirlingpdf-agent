@@ -32,7 +32,7 @@
 - **FR-018**: keepachangelog not installed — pip install 'universal-skills[code-enhancer]'
 - **FR-019**: Only 27% of env vars documented in README.md
 - **FR-020**: Undocumented env vars: ALLOWED_CLIENT_REDIRECT_URIS, AUTH_TYPE, EUNOMIA_POLICY_FILE, EUNOMIA_REMOTE_URL, EUNOMIA_TYPE, OAUTH_BASE_URL, OAUTH_UPSTREAM_AUTH_ENDPOINT, OAUTH_UPSTREAM_CLIENT_ID, OAUTH_UPSTREAM_CLIENT_SECRET, OAUTH_UPSTREAM_TOKEN_ENDPOINT
-- **FR-021**: 4 Python env vars not in .env.example: PDFTOOL, STIRLINGPDF_AGENT_VERIFY, STIRLINGPDF_API_KEY, STIRLINGPDF_URL
+- **FR-021**: 4 Python env vars not in .env.example: PDFTOOL, TLS_PROFILE, STIRLINGPDF_API_KEY, STIRLINGPDF_URL
 
 ## Success Criteria
 

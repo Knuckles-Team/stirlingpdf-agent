@@ -133,7 +133,7 @@
     },
     {
       "id": "FR-021",
-      "description": "4 Python env vars not in .env.example: PDFTOOL, STIRLINGPDF_AGENT_VERIFY, STIRLINGPDF_API_KEY, STIRLINGPDF_URL",
+      "description": "4 Python env vars not in .env.example: PDFTOOL, TLS_PROFILE, STIRLINGPDF_API_KEY, STIRLINGPDF_URL",
       "testable": true
     }
   ],

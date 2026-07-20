@@ -11,19 +11,18 @@
     - `mcp_server.py`: Main MCP server entry point and tool registration.
     - `agent.py`: Pydantic AI agent definition and logic.
     - `skills/`: Directory containing modular agent skills (if applicable).
-    - `agent/`: Internal agent logic and prompt templates.
 
 ## Concept Registry
 
 The following core concepts are defined and traced across the Stirling PDF Agent codebase:
 
-- **`STIRLINGPDF-001`**: **MCP Server Initialization & Tool Routing**
+- **`SP-OS.governance.stirlingpdf`**: **MCP Server Initialization & Tool Routing**
   - Traces FastMCP server configuration, dynamic tool toggles, and Action-Routed tool registrations.
   - Implementations: `stirlingpdf_agent/mcp_server.py`
-- **`STIRLINGPDF-002`**: **REST API Client Communication**
+- **`SP-OS.scaling.stirlingpdf`**: **REST API Client Communication**
   - Traces the underlying HTTP connection, session authentication, and API wrappers for the external Stirling PDF service.
   - Implementations: `stirlingpdf_agent/api_client.py`, `stirlingpdf_agent/api/api_client_watermark.py`
-- **`STIRLINGPDF-003`**: **Pydantic AI Graph Agent & Server Integration**
+- **`SP-OS.scaling.stirlingpdf-2`**: **Pydantic AI Graph Agent & Server Integration**
   - Traces the control loops, agent servers, and interaction with ACP / Web UI interfaces.
   - Implementations: `stirlingpdf_agent/agent_server.py`, `stirlingpdf_agent/agent.py`
 
@@ -75,7 +74,7 @@ pre-commit run --all-files
 
 ### File Tree
 ```text
-├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── pyproject.toml\n├── requirements.txt\n├── stirlingpdf_agent\n│   ├── __init__.py\n│   ├── agent\n│   │   ├── AGENTS.md\n│   │   ├── CRON.md\n│   │   ├── CRON_LOG.md\n│   │   ├── HEARTBEAT.md\n│   │   ├── IDENTITY.md\n│   │   ├── MEMORY.md\n│   │   ├── USER.md\n│   │   └── mcp_config.json\n│   ├── agent.py\n│   ├── auth.py\n│   ├── mcp_server.py\n│   ├── skills\n│   │   └── stirlingpdf-agent-docs\n│   ├── stirlingpdf_agent_models.py\n│   └── stirlingpdf_api.py\n└── stirlingpdf_agent.egg-info\n    ├── PKG-INFO\n    ├── SOURCES.txt\n    ├── dependency_links.txt\n    ├── entry_points.txt\n    ├── requires.txt\n    └── top_level.txt
+├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── pyproject.toml\n├── requirements.txt\n├── stirlingpdf_agent\n│   ├── __init__.py\n│   ├── agent_server.py\n│   ├── auth.py\n│   ├── mcp_server.py\n│   ├── skills\n│   │   └── stirlingpdf-agent-docs\n│   ├── stirlingpdf_agent_models.py\n│   └── stirlingpdf_api.py\n└── stirlingpdf_agent.egg-info\n    ├── PKG-INFO\n    ├── SOURCES.txt\n    ├── dependency_links.txt\n    ├── entry_points.txt\n    ├── requires.txt\n    └── top_level.txt
 ```
 
 ## Code Style & Conventions
@@ -176,25 +175,111 @@ and erodes a pristine codebase.
 `~/workspace/reports/` (command output); tests go in `tests/` (pytest).
 Before finishing a task, run `git status` and confirm no stray root files were added.
 
+## Working Discipline — think, simplify, stay surgical, verify
+
+These four habits cut the most common LLM coding mistakes. For trivial tasks, use
+judgment; the bias here is correctness over speed.
+
+- **Think before coding.** State your assumptions explicitly. If a request has more than
+  one reasonable reading, surface the options instead of silently picking one. If a
+  simpler approach exists, say so and push back when warranted. When something is
+  genuinely unclear, stop and name what's confusing — ask, don't guess.
+- **Simplicity first.** Write the minimum code that solves the stated problem — no
+  speculative features, no abstraction for single-use code, no configurability that
+  wasn't requested, no error handling for impossible states. If you wrote 200 lines and
+  it could be 50, rewrite it. (Name code from its purpose, never `wave0`/`phase2`/`v2`.)
+- **Stay surgical.** Every changed line should trace directly to the task. Don't refactor,
+  reformat, or "improve" working code adjacent to your change; match the existing style
+  even where you'd do it differently. Remove only the imports/symbols your own change
+  orphaned; if you spot unrelated dead code, mention it rather than deleting it inline.
+  *Exception — the Quality Bar below:* lint/format/type errors the pre-commit gate flags
+  get fixed regardless of who introduced them. In short: **surgical on behavior, clean on
+  lint.**
+- **Verify against a goal.** Turn the task into a checkable outcome before you start:
+  "fix the bug" → "write a failing test that reproduces it, then make it pass"; "add
+  validation" → "tests for the invalid inputs pass". For multi-step work, state the short
+  plan and the check for each step, then loop until the checks pass.
+
+## Quality Bar — Leave the Codebase Clean (REQUIRED)
+
+After completing any code change, run the project's pre-commit suite and drive it
+**fully green** before committing:
+
+```bash
+pre-commit run --all-files
+```
+
+Resolve **every** issue it reports — failures, lint errors, type errors, and
+warnings — **including problems that pre-date your change and were not caused by
+your edits**. The standing goal is a clean, working codebase with **no errors and
+no warnings**. Do not silence checks (`# noqa`, `# type: ignore`, `SKIP=`,
+`--no-verify`) to force green unless the exception is already documented in this
+file as a known, unavoidable limitation. Only commit once `pre-commit run
+--all-files` passes cleanly; if a check legitimately cannot pass, stop and explain
+why rather than bypassing it.
+
 ## Working with Git Worktrees (multi-session)
 
 Multiple agents/sessions work the `agent-packages/*` repos concurrently. **Do not
-edit the canonical checkout** (`/home/apps/workspace/agent-packages/<repo>`) — a
+edit the canonical checkout** (`${WORKSPACE_ROOT}/agent-packages/<repo>`) — a
 background `repository-manager` sync can reset its working tree and discard
 uncommitted edits. Take your own git worktree on your own branch instead:
 
 ```bash
 # preferred — repository-manager MCP:
-rm_worktree add <repo> <your-branch>      # -> /home/apps/worktrees/<repo>/<your-branch>
+rm_worktree add <repo> <your-branch>      # -> ${WORKTREE_ROOT}/<repo>/<your-branch>
 
 # raw-git fallback:
 git -C agent-packages/<repo> checkout main
-git -C agent-packages/<repo> worktree add /home/apps/worktrees/<repo>/<branch> -b <branch>
+git -C agent-packages/<repo> worktree add ${WORKTREE_ROOT}/<repo>/<branch> -b <branch>
 ```
 
-Work in the worktree, **commit often** (commits survive a working-tree reset),
-then merge to main locally (`rm_worktree merge <repo> <branch>`, or `git merge
---no-ff`). Each session must use a **distinct branch** — git allows a branch in
-only one worktree, which is what keeps concurrent sessions from colliding.
-Worktrees live under `/home/apps/worktrees/` (outside the workspace scan, so the
-sync leaves them alone). Push only when asked.
+Work in the worktree and **commit often** (commits survive a working-tree reset).
+Each session must use a **distinct branch** — git allows a branch in only one
+worktree, which is what keeps concurrent sessions from colliding. Worktrees live
+under `${WORKTREE_ROOT}/` (outside the workspace scan, so the sync leaves them
+alone).
+
+**Finishing work in a worktree** — run this sequence before calling it done:
+1. **Pre-commit green** — `pre-commit run --all-files`; resolve every issue per the
+   Quality Bar above (including pre-existing), no `--no-verify`.
+2. **Commit** in the worktree.
+3. **Merge to main locally** — `rm_worktree merge <repo> <branch> --into main`
+   (or `git merge --no-ff`). Push only when the user asks.
+4. **Clean up** — remove the worktree and delete the merged branch:
+   `rm_worktree remove <repo> <branch> --delete-branch`; `rm_worktree prune` clears
+   stale entries. (Raw-git: `git worktree remove <path> && git branch -d <branch>`.)
+
+<!-- BEGIN concept-coordination (generated) -->
+## Concept-ID Coordination (multi-session)
+
+Working in parallel with other sessions/worktrees? **Reserve a concept id before you write its `CONCEPT:` marker** so two sessions never collide:
+
+```bash
+agent-utilities --json concept reserve --ns EG-KG.compute.backend   # or a package prefix, e.g. KEY
+```
+
+Full protocol (ledger, merge=union, reconcile, MCP/REST): <https://knuckles-team.github.io/agent-utilities/concept_coordination/>
+<!-- END concept-coordination (generated) -->
+
+## Version & lockfile drift edict (keep the version mirrors AND the lock in sync)
+
+The two most common release-breakers in this fleet are **version drift** (the version in
+`pyproject.toml`/`.bumpversion.cfg` advancing while `README.md`, `docker/Dockerfile`, and the
+module `__version__`s lag) and a **stale `uv.lock`** (shipping known-vulnerable transitive deps).
+A version mismatch makes the next `bump-my-version` throw `VersionNotFoundException`; a stale lock
+is what Dependabot flags. Rules:
+
+1. **Never hand-edit a version string.** Change the version ONLY via
+   `bump-my-version bump {patch|minor|major}` (a.k.a. `bump2version`), which rewrites every file
+   registered in `.bumpversion.cfg` in one atomic, tagged commit. If you edited the version in
+   `pyproject.toml` by hand, you created drift — revert and use the bumper.
+2. **Every version-bearing file must be registered in `.bumpversion.cfg`** — at minimum
+   `pyproject.toml` AND `README.md`, plus `docker/Dockerfile` and any module `__version__`. Never
+   add a file that embeds the version without a `[bumpversion:file:...]` entry for it.
+3. **Re-lock on every dependency change.** After editing `pyproject.toml` deps/extras, run
+   `uv lock` and commit `uv.lock` in the SAME change. The `uv-lock` pre-commit hook runs with
+   `--locked` and fails on drift — never bypass it. The committed `uv.lock` is the
+   Dependabot/security surface.
+4. **Patch CVEs with a version floor at the source, then re-lock.** `uv` resolves one version
+   graph-wide, so a lower-bound in the extra that pulls a dependency raises it for the whole lock.

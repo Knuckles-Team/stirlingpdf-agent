@@ -2,9 +2,8 @@
 import logging
 import os
 import sys
-import warnings
 
-__version__ = "0.28.0"
+__version__ = "1.0.1"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,9 +44,6 @@ def agent_server():
         "AGENT_SYSTEM_PROMPT",
         meta.get("content") or build_system_prompt_from_workspace(),
     )
-
-    warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
-    warnings.filterwarnings("ignore", category=DeprecationWarning, module="fastmcp")
 
     print(f"{DEFAULT_AGENT_NAME} v{__version__}", file=sys.stderr)
     parser = create_agent_parser()

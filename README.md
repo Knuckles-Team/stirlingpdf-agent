@@ -15,7 +15,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/stirlingpdf-agent)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/stirlingpdf-agent)
 
-*Version: 0.28.0*
+*Version: 1.0.1*
 
 > **Documentation** — Installation, deployment, usage across the MCP, API, and CLI
 > interfaces, and guidance for provisioning the Stirling PDF service are maintained in
@@ -58,15 +58,52 @@
 
 ## Installation
 
-Install the Python package locally:
+Pick the extra that matches what you want to run:
+
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `stirlingpdf-agent[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | You only run the **MCP server** (smallest install / image) |
+| `stirlingpdf-agent[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
+| `stirlingpdf-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
-# Using uv (highly recommended for speed and isolation)
-uv pip install stirlingpdf-agent[all]
+# Connector-focused MCP server (includes the shared graph engine)
+uv pip install "stirlingpdf-agent[mcp]"
 
-# Using standard pip
-python -m pip install stirlingpdf-agent[all]
+# Agent runtime (adds model orchestration to the shared graph engine)
+uv pip install "stirlingpdf-agent[agent]"
+
+# Everything (development)
+uv pip install "stirlingpdf-agent[all]"      # or: python -m pip install "stirlingpdf-agent[all]"
 ```
+
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `example/stirlingpdf-agent:mcp` | `--target mcp` | `stirlingpdf-agent[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `stirlingpdf-mcp` |
+| `example/stirlingpdf-agent@sha256:<digest>` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `stirlingpdf-agent` |
+
+```bash
+docker build --target mcp   -t example/stirlingpdf-agent:mcp    docker/   # connector-focused MCP server
+docker build --target agent -t example/stirlingpdf-agent:agent-local docker/   # agent runtime
+```
+
+`docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
+agent (`immutable agent digest`) with a co-located `:mcp` sidecar.
+
+### Knowledge-graph database (`epistemic-graph`)
+
+Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
+Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
+the server connector-focused; `[agent]` additionally enables model orchestration. Local
+deployments can use the bundled engine. For production or shared state, run
+**epistemic-graph as a dedicated database service** and configure the runtime to use it.
+Deployment recipes (single-node + Raft HA), connection configuration, and architecture
+diagrams are documented in the
+[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
 
 ---
 
@@ -81,7 +118,6 @@ from stirlingpdf_agent.api_client import StirlingPdfApi
 client = StirlingPdfApi(
     base_url="http://localhost:8080",
     token="your-stirling-pdf-api-key",
-    verify=True
 )
 
 # Example action: Add a watermark to an existing PDF
@@ -105,9 +141,30 @@ with open("watermarked_output.pdf", "wb") as f:
 This server utilizes dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
 
 ### Available MCP Tools
-| Tool Module | Toggle Env Var | Enabled by Default | Description & Nested Methods |
-|-------------|----------------|--------------------|------------------------------|
-| **Pdf** | `PDF_TOOL` | `True` | Execute any Stirling PDF API action dynamically. |
+
+The table below is auto-generated from the MCP server — do not edit by hand.
+
+<!-- MCP-TOOLS-TABLE:START -->
+
+#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `pdf_action` | `PDFTOOL` | Execute any Stirling PDF API action dynamically. |
+
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>1 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `stirlingpdf_add_watermark` | `WATERMARK_CLIENTTOOL` | Add a watermark to a PDF file. |
+
+</details>
+
+_1 action-routed tool(s) (default) · 1 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+<!-- MCP-TOOLS-TABLE:END -->
 
 ---
 
@@ -134,71 +191,116 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ### MCP Configuration Examples
 
-#### 1. stdio Transport (Recommended for local IDEs e.g., Cursor, Claude Desktop)
-Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
+<!-- MCP-CONFIG-EXAMPLES:START -->
+
+> **Install the connector-focused `[mcp]` extra.** Examples use `stirlingpdf-agent[mcp]` to add
+> FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
+> still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
+> enables model orchestration.
+
+#### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
 
 ```json
 {
   "mcpServers": {
-    "stirlingpdf-agent": {
+    "stirlingpdf-mcp": {
       "command": "uvx",
       "args": [
         "--from",
-        "stirlingpdf-agent",
+        "stirlingpdf-agent[mcp]",
         "stirlingpdf-mcp"
       ],
       "env": {
-        "PDFTOOL": "True",
-        "STIRLINGPDF_URL": "http://localhost:8080",
-        "STIRLINGPDF_API_KEY": "your_api_key_here",
-        "STIRLINGPDF_AGENT_VERIFY": "True"
+        "MCP_TOOL_MODE": "intent",
+        "PDFTOOL": "True"
       }
     }
   }
 }
 ```
 
-#### 2. Streamable-HTTP Transport (Recommended for production deployments)
-Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx` with explicit host and port definition:
+Runtime references require an alias-aware launcher such as GraphOS. Other
+launchers must omit those entries and inject the resolved values through their
+own runtime secret boundary.
+
+#### Streamable-HTTP Transport (networked / production)
 
 ```json
 {
   "mcpServers": {
-    "stirlingpdf-agent": {
+    "stirlingpdf-mcp": {
       "command": "uvx",
       "args": [
         "--from",
-        "stirlingpdf-agent",
-        "stirlingpdf-mcp"
+        "stirlingpdf-agent[mcp]",
+        "stirlingpdf-mcp",
+        "--transport",
+        "streamable-http",
+        "--port",
+        "8000"
       ],
       "env": {
         "TRANSPORT": "streamable-http",
-        "HOST": "0.0.0.0",
+        "HOST": "127.0.0.1",
         "PORT": "8000",
-        "PDFTOOL": "True",
-        "STIRLINGPDF_URL": "http://localhost:8080",
-        "STIRLINGPDF_API_KEY": "your_api_key_here",
-        "STIRLINGPDF_AGENT_VERIFY": "True"
+        "MCP_TOOL_MODE": "intent",
+        "PDFTOOL": "True"
       }
     }
   }
 }
 ```
 
-Deploying the Streamable-HTTP server via Docker:
+Alternatively, connect to a pre-deployed Streamable-HTTP instance by `url`:
 
-```bash
-docker run -d \
-  --name stirlingpdf-agent-mcp \
-  -p 8000:8000 \
-  -e TRANSPORT=streamable-http \
-  -e PORT=8000 \
-  -e STIRLINGPDF_URL="http://your-service:8080" \
-  -e STIRLINGPDF_API_KEY="your_api_key_here" \
-  knucklessg1/stirlingpdf-agent:latest
+```json
+{
+  "mcpServers": {
+    "stirlingpdf-mcp": {
+      "url": "http://localhost:8000/stirlingpdf-mcp/mcp"
+    }
+  }
+}
 ```
 
----
+Run a reviewed container image as a least-privilege stdio child (no
+listener or published port):
+
+```bash
+docker run -i --rm \
+  --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
+  --pids-limit=256 \
+  --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+  -e TRANSPORT=stdio \
+  -e MCP_TOOL_MODE=intent \
+  -e PDFTOOL=True \
+  registry.example.invalid/stirlingpdf-agent@sha256:<digest> stirlingpdf-mcp
+```
+
+For containerized network HTTP, supply an authenticated TLS ingress (or
+direct server TLS), exact `MCP_ALLOWED_HOSTS`, and an exact trusted-proxy
+CIDR policy through the operator-owned deployment profile. The generator
+does not emit an unauthenticated non-loopback listener.
+
+_Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
+<!-- MCP-CONFIG-EXAMPLES:END -->
+
+<!-- BEGIN GENERATED: additional-deployment-options -->
+### Additional Deployment Options
+
+`stirlingpdf-agent` can run as a local stdio process or container, or behind a remote
+network boundary. The
+[Deployment guide](https://knuckles-team.github.io/stirlingpdf-agent/deployment/) carries
+the detailed transport contract.
+
+- **Local container** — launch a reviewed immutable image as a least-privilege
+  stdio child with no listener or published port.
+- **Remote URL** — connect through an operator-supplied authenticated HTTPS
+  ingress. Keep its URL, outbound identity references, trust profile, and exact
+  `MCP_ALLOWED_HOSTS` in `AgentConfig`.
+<!-- END GENERATED: additional-deployment-options -->
 
 ## Agent Mode
 
@@ -209,7 +311,7 @@ To start the interactive command-line agent:
 
 ```bash
 # Set credentials
-export STIRLINGPDF_URL="http://localhost:8080"
+export STIRLINGPDF_URL="<configured-endpoint>"
 export STIRLINGPDF_API_KEY="your-api-key"
 
 # Run the agent server
@@ -225,7 +327,7 @@ version: '3.8'
 
 services:
   stirlingpdf-agent-mcp:
-    image: knucklessg1/stirlingpdf-agent:latest
+    image: example/stirlingpdf-agent@sha256:<digest>
     container_name: stirlingpdf-agent-mcp
     hostname: stirlingpdf-agent-mcp
     restart: always
@@ -240,7 +342,7 @@ services:
       - "8000:8000"
 
   stirlingpdf-agent-agent:
-    image: knucklessg1/stirlingpdf-agent:latest
+    image: example/stirlingpdf-agent@sha256:<digest>
     container_name: stirlingpdf-agent-agent
     hostname: stirlingpdf-agent-agent
     restart: always
@@ -264,15 +366,62 @@ services:
 
 ---
 
-## Environment Variables Reference
+## Environment Variables
+
+<!-- ENV-VARS-TABLE:START -->
+
+#### Package environment variables
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `HOST` | `0.0.0.0` |  |
+| `PORT` | `8000` |  |
+| `TRANSPORT` | `stdio` | options: stdio, streamable-http, sse |
+| `ENABLE_OTEL` | `True` |  |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:8080/api/public/otel` |  |
+| `OTEL_EXPORTER_OTLP_PUBLIC_KEY` | `pk-...` |  |
+| `OTEL_EXPORTER_OTLP_SECRET_KEY` | `sk-...` |  |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` |  |
+| `EUNOMIA_TYPE` | `none` | options: none, embedded, remote |
+| `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
+| `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
+| `PDFTOOL` | `True` |  |
+| `STIRLINGPDF_URL` | Required |  |
+| `STIRLINGPDF_API_KEY` | — |  |
+| `TLS_PROFILE` | — | Named `AgentConfig` transport-security profile; verification is mandatory. |
+| `TLS_PROFILES_REF` | — | Runtime secret reference for the TLS profile catalog. |
+
+#### Inherited agent-utilities variables (apply to every connector)
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `MCP_TOOL_MODE` | `condensed` | Tool surface: `condensed` | `verbose` | `both` |
+| `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
+| `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
+| `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
+| `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
+| `MCP_CLIENT_AUTH` | — | Outbound MCP auth (`oidc-client-credentials` for fleet calls) |
+| `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
+| `OIDC_CLIENT_SECRET` | — | OIDC client secret (service-account auth) |
+| `DEBUG` | `False` | Verbose logging |
+| `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
+| `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
+| `PROVIDER` | `openai` | LLM provider for the agent |
+| `MODEL_ID` | `gpt-4o` | Model id for the agent |
+| `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
+
+_17 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+<!-- ENV-VARS-TABLE:END -->
+ Reference
 
 Stirling PDF Agent utilizes both package-specific environment configurations and standard security settings inherited from the `agent-utilities` system core.
 
 ### Stirling PDF Agent Configs
 - **`PDFTOOL`** (bool, default: `True`): Toggles the dynamic PDF action tool registration.
-- **`STIRLINGPDF_URL`** (str, default: `http://localhost:8080`): The base endpoint of the external Stirling PDF API service.
+- **`STIRLINGPDF_URL`** (str, required): The base endpoint of the external Stirling PDF API service.
 - **`STIRLINGPDF_API_KEY`** (str): API connection token/secret used to authenticate REST requests.
-- **`STIRLINGPDF_AGENT_VERIFY`** (bool, default: `True`): Toggles SSL certificate verification during REST requests.
+- **`TLS_PROFILE`** (str): Selects a named `AgentConfig` transport-security profile. Certificate and hostname verification are mandatory.
+- **`TLS_PROFILES_REF`** (secret reference): Resolves the runtime-only TLS profile catalog.
 
 ### Inherited agent-utilities Configs
 - **`TRANSPORT`** (str, default: `stdio`): Server transport type. Options: `stdio`, `sse`, `streamable-http`.
@@ -334,3 +483,42 @@ the recommended reference for installation, deployment, and day-to-day operation
 | [Concepts](https://knuckles-team.github.io/stirlingpdf-agent/concepts/) | concept registry (`CONCEPT:STIRLINGPDF-*`) |
 
 `AGENTS.md` is the canonical contributor/agent guidance.
+
+
+<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
+
+## Deploy with `agent-utilities-deployment`
+
+Provision this package with the consolidated **`agent-utilities-deployment`**
+workflow. It selects an installed-package, editable-source, or immutable-container
+path; records only runtime secret and TLS-profile references in `AgentConfig`; and
+runs doctor, registration, policy, observability, and rollback gates. Ask your agent
+to **"deploy `stirlingpdf-agent` with agent-utilities-deployment"**.
+
+| Install mode | Command |
+|------|---------|
+| Installed package | `uv tool install "stirlingpdf-agent[mcp]"`, then run `stirlingpdf-mcp` |
+| Editable source | `uv pip install -e ".[agent]"`, then run `stirlingpdf-mcp` |
+| Immutable container | deploy `registry.example.invalid/stirlingpdf-agent@sha256:<digest>` through the operator-selected orchestrator |
+
+The repository embeds no deployment profile, credential value, certificate path, or
+environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
+configured secret provider.
+
+<!-- END agent-utilities-deployment -->
+
+<!-- GOVERNED-CAPABILITY:START -->
+## Governed capability contract
+
+This package ships a compact canonical skill surface with specialist procedures
+kept as referenced workflows. The current MCP tools, skill metadata,
+`connector_manifest.yml`, ontology, mappings, shapes, fixtures, migrations,
+tool-schema fingerprints, and certification metadata form one versioned
+capability contract. Validate them together; do not rely on stale tool names or
+historical per-task skill wrappers.
+
+Runtime endpoints, credentials, certificate trust, tenant identity, retention,
+and observability policy are deployment inputs and are never packaged values.
+See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
+network transport, connector ingestion, GraphOS delegation, or trace export.
+<!-- GOVERNED-CAPABILITY:END -->

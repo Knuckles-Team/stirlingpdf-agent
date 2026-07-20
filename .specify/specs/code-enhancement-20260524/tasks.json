@@ -274,8 +274,8 @@
   },
   {
     "id": "T022",
-    "title": "[Environment Variables] Undocumented env vars: OTEL_EXPORTER_OTLP_ENDPOINT, STIRLINGPDF_SSL_VERIFY, STIR",
-    "description": "Undocumented env vars: OTEL_EXPORTER_OTLP_ENDPOINT, STIRLINGPDF_SSL_VERIFY, STIRLINGPDF_TOKEN",
+    "title": "[Environment Variables] Undocumented env vars: OTEL_EXPORTER_OTLP_ENDPOINT, TLS_PROFILES_REF, STIR",
+    "description": "Document transport-security variables in README.md and .env.example",
     "domain": "Environment Variables",
     "priority": "P4-Enhancement",
     "effort": "Medium",
@@ -287,8 +287,8 @@
   },
   {
     "id": "T023",
-    "title": "[Environment Variables] 2 Python env vars not in .env.example: STIRLINGPDF_SSL_VERIFY, STIRLINGPDF_TOKEN",
-    "description": "2 Python env vars not in .env.example: STIRLINGPDF_SSL_VERIFY, STIRLINGPDF_TOKEN",
+    "title": "[Environment Variables] Document runtime TLS profile references",
+    "description": "Document runtime TLS profile references in .env.example",
     "domain": "Environment Variables",
     "priority": "P4-Enhancement",
     "effort": "Medium",
