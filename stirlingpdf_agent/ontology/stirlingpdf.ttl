@@ -9,7 +9,7 @@
 # Stirling PDF ontology — a self-hosted PDF-manipulation toolbox. It models the PDF
 # operations Stirling performs and their document provenance. All classes and properties
 # live in the shared `:` (kg#) namespace; only the owl:Ontology node gets the per-package
-# IRI. The raw PDF bytes reuse the shared `:Blob` / `:MediaAsset` classes and the extracted
+# IRI. The raw PDF bytes reuse the shared `:Blob` / `:AssetOccurrence` classes and the extracted
 # text reuses the shared `:Document` class — this leg only adds the PDF-tool domain vocabulary.
 # Backs the stirlingpdf-agent MCP tool surface (pdf_action add_watermark / dispatched actions).
 
@@ -39,19 +39,19 @@
 
 :hasInput a owl:ObjectProperty ;
     rdfs:label "has input" ;
-    rdfs:comment "Links a PdfOperation to the source PDF it consumed (a :Blob / :MediaAsset or :Document)." ;
+    rdfs:comment "Links a PdfOperation to the source PDF it consumed (a :Blob / :AssetOccurrence or :Document)." ;
     rdfs:domain :PdfOperation .
 
 :produced a owl:ObjectProperty ;
     rdfs:label "produced" ;
-    rdfs:comment "Links a PdfOperation to the output PDF blob (:MediaAsset) it generated." ;
+    rdfs:comment "Links a PdfOperation to the output PDF blob (:AssetOccurrence) it generated." ;
     rdfs:domain :PdfOperation ;
-    rdfs:range :MediaAsset .
+    rdfs:range :AssetOccurrence .
 
 :derivedFrom a owl:ObjectProperty ;
     rdfs:label "derived from" ;
-    rdfs:comment "Provenance link from an output PDF (:MediaAsset) back to the input PDF it was derived from." ;
-    rdfs:range :MediaAsset .
+    rdfs:comment "Provenance link from an output PDF (:AssetOccurrence) back to the input PDF it was derived from." ;
+    rdfs:range :AssetOccurrence .
 
 :appliedWatermark a owl:ObjectProperty ;
     rdfs:label "applied watermark" ;
@@ -127,7 +127,7 @@
     rdfs:label "Stirling PDF Ontology" ;
     rdfs:comment """Stirling PDF document-manipulation model — PDF operations, tools,
     pipelines and watermarks, with the document-provenance links that tie an output PDF
-    back to the input it was derived from. Raw bytes reuse the shared :Blob / :MediaAsset
+    back to the input it was derived from. Raw bytes reuse the shared :Blob / :AssetOccurrence
     classes and extracted text reuses :Document. Federated into the agent-utilities
     knowledge-graph hub.""" ;
     owl:imports <http://knuckles.team/kg> .

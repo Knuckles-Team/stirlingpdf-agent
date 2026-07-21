@@ -18,7 +18,7 @@ class WatermarkClient(BaseApiClient):
     def _ingest_watermark(filepath: str, output_bytes: bytes, params: dict) -> None:
         """Best-effort native KG ingestion of a completed add-watermark operation.
 
-        Stores the input + output PDFs as blobs (:MediaAsset) and records a :PdfOperation
+        Stores the input + output PDFs as blobs (:AssetOccurrence) and records a :PdfOperation
         with :usedTool / :produced / :derivedFrom / :appliedWatermark provenance. Fully
         guarded: no-ops when the epistemic-graph engine or agent-utilities KG stack is
         absent, so the watermark call never fails because of ingestion.
@@ -42,7 +42,7 @@ class WatermarkClient(BaseApiClient):
                 size_bytes=len(output_bytes) if output_bytes else None,
             )
         except Exception as e:  # noqa: BLE001 — ingestion is strictly best-effort
-            print(f"KG ingest skipped: {e}", file=sys.stderr)
+            print(f"KG ingest skipped: {type(e).__name__}", file=sys.stderr)
 
     @require_auth
     def add_watermark(self, filepath: str, **kwargs) -> Response:
@@ -65,8 +65,6 @@ class WatermarkClient(BaseApiClient):
                     data=model.api_parameters,
                     files=files,
                     headers=self.headers,
-                    verify=self.verify,
-                    proxies=self.proxies,
                 )
 
             response.raise_for_status()
@@ -86,5 +84,5 @@ class WatermarkClient(BaseApiClient):
                 raise exc from e
             raise e from e
         except Exception as e:
-            print(f"Error during API call: {e}", file=sys.stderr)
+            print(f"API call failed: {type(e).__name__}", file=sys.stderr)
             raise e from e

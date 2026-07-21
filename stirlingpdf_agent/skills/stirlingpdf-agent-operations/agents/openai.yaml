@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stirlingpdf Agent Operations"
+  short_description: "Help with Stirlingpdf Agent Operations tasks"
+  default_prompt: "Use $stirlingpdf-agent-operations to complete a governed provider workflow."

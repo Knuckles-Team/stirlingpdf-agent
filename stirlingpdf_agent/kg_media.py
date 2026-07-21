@@ -2,7 +2,7 @@
 
 CONCEPT:AU-KG.ingest.list-durable-media. Stirling PDF operations consume and produce raw
 PDF bytes. When a live epistemic-graph engine is reachable, those bytes are stored as a
-content-addressed **blob** with a ``:MediaAsset`` graph node (carrying the operation
+content-addressed **blob** with a ``:AssetOccurrence`` graph node (carrying the operation
 metadata) in ONE cross-modal ACID commit, via the agent-utilities ``MediaStore`` (or the
 shared ``native_ingest.media_store`` when that primitive is present). This makes the actual
 PDF — not just a filesystem path — durable, deduped, and queryable in the knowledge graph,
@@ -35,7 +35,7 @@ def _media_store() -> Any | None:
         if store is not None:
             return store
     except Exception as e:  # noqa: BLE001 — primitive not yet installed
-        logger.debug("native_ingest.media_store unavailable: %s", e)
+        logger.debug("native_ingest.media_store unavailable: %s", type(e).__name__)
 
     try:
         from agent_utilities.knowledge_graph.core.graph_compute import (
@@ -43,7 +43,7 @@ def _media_store() -> Any | None:
         )
         from agent_utilities.knowledge_graph.memory.media_store import MediaStore
     except Exception as e:  # noqa: BLE001 — agent-utilities KG stack absent
-        logger.debug("KG media ingest unavailable (import): %s", e)
+        logger.debug("KG media ingest unavailable (import): %s", type(e).__name__)
         return None
     try:
         engine = GraphComputeEngine()
@@ -52,7 +52,7 @@ def _media_store() -> Any | None:
             return None
         return MediaStore(engine)
     except Exception as e:  # noqa: BLE001 — no reachable engine
-        logger.debug("KG media ingest: engine unreachable: %s", e)
+        logger.debug("KG media ingest: engine unreachable: %s", type(e).__name__)
         return None
 
 
@@ -67,7 +67,7 @@ def ingest_pdf_bytes(
     source: str = _SOURCE,
     media_store: Any | None = None,
 ) -> dict[str, Any] | None:
-    """Store raw PDF ``data`` as a blob + ``:MediaAsset`` in the knowledge graph.
+    """Store raw PDF ``data`` as a blob + ``:AssetOccurrence`` in the knowledge graph.
 
     ``role`` records whether this artifact was the operation's ``input`` or ``output``;
     ``action`` records the Stirling action that touched it. Returns
@@ -96,7 +96,7 @@ def ingest_pdf_bytes(
             extra=meta,
         )
     except Exception as e:  # noqa: BLE001 — engine/store failure is non-fatal
-        logger.warning("KG media ingest: store_media failed: %s", e)
+        logger.warning("KG media ingest: store_media failed: %s", type(e).__name__)
         return None
     if stored is None:
         return None
@@ -132,7 +132,9 @@ def ingest_pdf_file(
         with open(file_path, "rb") as fh:
             data = fh.read()
     except OSError as e:
-        logger.warning("KG media ingest: cannot read %s: %s", file_path, e)
+        logger.warning(
+            "KG media ingest: cannot read %s: %s", file_path, type(e).__name__
+        )
         return None
     return ingest_pdf_bytes(
         data,

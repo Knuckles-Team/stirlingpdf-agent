@@ -1,37 +1,37 @@
 #!/usr/bin/python
-import urllib3
 from agent_utilities.core.config import setting
+from agent_utilities.core.exceptions import AuthError, UnauthorizedError
+from agent_utilities.core.transport_security import (
+    ResolvedTLSProfile,
+    resolve_configured_tls_profile,
+)
 
 from stirlingpdf_agent.api_client import StirlingPdfApi
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-from agent_utilities.core.exceptions import AuthError, UnauthorizedError
 
 _client = None
 
 
-def get_client():
+def get_client(tls_profile: ResolvedTLSProfile | None = None):
     """Get or create a singleton API client instance."""
     global _client
     if _client is None:
-        base_url = setting("STIRLINGPDF_URL", "http://localhost:8080")
+        base_url = setting("STIRLINGPDF_URL", "")
         token = setting("STIRLINGPDF_TOKEN", "") or setting("STIRLINGPDF_API_KEY", "")
-        verify = bool(
-            setting("STIRLINGPDF_SSL_VERIFY", setting("STIRLINGPDF_AGENT_VERIFY", True))
-        )
+        if not base_url:
+            raise RuntimeError("STIRLINGPDF_URL is required")
 
         try:
             _client = StirlingPdfApi(
                 base_url=base_url,
                 token=token,
-                verify=verify,
+                tls_profile=tls_profile
+                or resolve_configured_tls_profile("stirlingpdf"),
             )
         except (AuthError, UnauthorizedError) as e:
             raise RuntimeError(
-                f"AUTHENTICATION ERROR: The Stirling PDF API key provided is not valid for '{base_url}'. "
+                "AUTHENTICATION ERROR: The configured API key was rejected. "
                 f"Please check your STIRLINGPDF_API_KEY and STIRLINGPDF_URL environment variables. "
-                f"Error details: {str(e)}"
+                f"Error details: {type(e).__name__}"
             ) from e
 
     return _client

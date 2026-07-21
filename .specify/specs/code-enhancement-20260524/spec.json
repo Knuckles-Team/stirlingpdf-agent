@@ -153,12 +153,12 @@
     },
     {
       "id": "FR-022",
-      "description": "Undocumented env vars: OTEL_EXPORTER_OTLP_ENDPOINT, STIRLINGPDF_SSL_VERIFY, STIRLINGPDF_TOKEN",
+      "description": "Transport-security variables are documented in README.md and .env.example",
       "testable": true
     },
     {
       "id": "FR-023",
-      "description": "2 Python env vars not in .env.example: STIRLINGPDF_SSL_VERIFY, STIRLINGPDF_TOKEN",
+      "description": "Runtime TLS profile references are documented in .env.example",
       "testable": true
     },
     {

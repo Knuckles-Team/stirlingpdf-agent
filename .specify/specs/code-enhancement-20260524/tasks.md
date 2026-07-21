@@ -45,9 +45,9 @@ Skipped informational: 6
   - Priority: P2-Medium | Effort: Medium
 - [ ] [P] **T021** [Pytest Quality] 3 tests have no assertions
   - Priority: P2-Medium | Effort: Medium
-- [ ] [P] **T022** [Environment Variables] Undocumented env vars: OTEL_EXPORTER_OTLP_ENDPOINT, STIRLINGPDF_SSL_VERIFY, STIR
+- [ ] [P] **T022** [Environment Variables] Undocumented env vars: OTEL_EXPORTER_OTLP_ENDPOINT, TLS_PROFILES_REF, STIR
   - Priority: P4-Enhancement | Effort: Medium
-- [ ] [P] **T023** [Environment Variables] 2 Python env vars not in .env.example: STIRLINGPDF_SSL_VERIFY, STIRLINGPDF_TOKEN
+- [ ] [P] **T023** [Environment Variables] Document runtime TLS profile references in `.env.example`
   - Priority: P4-Enhancement | Effort: Medium
 - [ ] [P] **T024** [analyze_xdg_kg] Analysis error: No module named 'agent_utilities.knowledge_graph'
   - Priority: P1-High | Effort: Medium

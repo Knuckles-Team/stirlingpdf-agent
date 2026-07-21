@@ -30,9 +30,7 @@ async def test_list_actions_returns_action_names():
     ctx = MagicMock()
     ctx.info = AsyncMock()
 
-    res = await tool.fn(
-        action="list_actions", params_json="{}", client=client, ctx=ctx
-    )
+    res = await tool.fn(action="list_actions", params_json="{}", client=client, ctx=ctx)
 
     assert isinstance(res, dict)
     assert res["service"] == "stirlingpdf-agent"
@@ -55,3 +53,16 @@ async def test_unknown_action_raises_with_did_you_mean():
         )
 
     assert "list_actions" in str(excinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_headless_destructive_action_fails_closed():
+    tool = await _get_pdf_action_tool()
+    client = MagicMock(spec=["delete_pages"])
+
+    res = await tool.fn(
+        action="delete_pages", params_json="{}", client=client, ctx=None
+    )
+
+    assert res == {"cancelled": True, "operation": "delete_pages"}
+    client.delete_pages.assert_not_called()

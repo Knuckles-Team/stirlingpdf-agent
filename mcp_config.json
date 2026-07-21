@@ -9,10 +9,9 @@
       "env": {
         "MCP_TOOL_MODE": "condensed",
         "PDFTOOL": "True",
-        "STIRLINGPDF_AGENT_VERIFY": "True",
         "STIRLINGPDF_API_KEY": "",
         "STIRLINGPDF_TOKEN": "",
-        "STIRLINGPDF_URL": "http://localhost:8080"
+        "STIRLINGPDF_URL": ""
       }
     }
   }

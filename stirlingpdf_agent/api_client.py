@@ -1,20 +1,8 @@
-from agent_utilities.core.exceptions import (
-    AuthError,
-    MissingParameterError,
-    ParameterError,
-    UnauthorizedError,
-)
+from agent_utilities.core.transport_security import ResolvedTLSProfile
 
 from stirlingpdf_agent.api.api_client_watermark import WatermarkClient
 
-# Expose classes and exceptions for backwards compatibility
-__all__ = [
-    "StirlingPdfApi",
-    "AuthError",
-    "MissingParameterError",
-    "ParameterError",
-    "UnauthorizedError",
-]
+__all__ = ["StirlingPdfApi"]
 
 
 class StirlingPdfApi(WatermarkClient):
@@ -22,12 +10,10 @@ class StirlingPdfApi(WatermarkClient):
         self,
         base_url: str | None = None,
         token: str | None = None,
-        proxies: dict | None = None,
-        verify: bool | None = True,
+        tls_profile: ResolvedTLSProfile | None = None,
     ):
         super().__init__(
             base_url=base_url,
             token=token,
-            proxies=proxies,
-            verify=verify,
+            tls_profile=tls_profile,
         )

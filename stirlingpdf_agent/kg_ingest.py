@@ -10,15 +10,13 @@ applies to a PDF toolbox:
 * **documents** — text worth semantic search (e.g. an operation summary, extracted text)
   becomes ``:Document`` nodes carrying the text + ``source_uri``, via :func:`ingest_documents`.
 * **blobs** — the raw PDF bytes (input and output artifacts) are stored as ``:Blob`` +
-  ``:MediaAsset`` via :func:`stirlingpdf_agent.kg_media.ingest_pdf_bytes`.
+  ``:AssetOccurrence`` via :func:`stirlingpdf_agent.kg_media.ingest_pdf_bytes`.
 
-This module is a thin mapper. It prefers the shared write primitive
-``agent_utilities.knowledge_graph.memory.native_ingest`` when that is importable; otherwise
-it falls back to a self-contained txn against the lightweight engine client
-(``GraphComputeEngine()._client``). Either way it is dependency-/engine-guarded: with no KG
-stack or no reachable engine every entry point **no-ops** (returns ``None``), so the connector
-runs with zero KG infrastructure. Node ids follow ``stirlingpdf:<class>:<externalId>`` and
-each ``type`` matches a class federated by ``stirlingpdf_agent.ontology``.
+This module is a thin mapper over the required shared write primitive
+``agent_utilities.knowledge_graph.memory.native_ingest``. Engine failures are explicit and
+partial writes are never acknowledged. Node ids follow
+``stirlingpdf:<class>:<externalId>`` and each ``node_type`` matches a class federated by
+``stirlingpdf_agent.ontology``.
 """
 
 from __future__ import annotations
@@ -28,43 +26,17 @@ import re
 import time
 from typing import Any
 
+from agent_utilities.knowledge_graph.memory.native_ingest import (
+    ingest_documents as _native_ingest_documents,
+)
+from agent_utilities.knowledge_graph.memory.native_ingest import (
+    ingest_entities as _native_ingest_entities,
+)
+
 logger = logging.getLogger("stirlingpdf_agent.kg")
 
 _SOURCE = "stirlingpdf-agent"
 _DOMAIN = "stirlingpdf"
-_DEFAULT_GRAPH = "__commons__"
-
-
-def _primitive() -> Any | None:
-    """Return the shared native_ingest module, or ``None`` when unavailable."""
-    try:
-        from agent_utilities.knowledge_graph.memory import native_ingest
-
-        return native_ingest
-    except Exception as e:  # noqa: BLE001 — primitive not yet in installed agent_utilities
-        logger.debug("native_ingest primitive unavailable: %s", e)
-        return None
-
-
-def _client() -> tuple[Any | None, str]:
-    """Return ``(engine_client, graph_name)`` or ``(None, "")`` when unavailable."""
-    try:
-        from agent_utilities.knowledge_graph.core.graph_compute import (
-            GraphComputeEngine,
-        )
-    except Exception as e:  # noqa: BLE001 — KG stack absent
-        logger.debug("KG ingest unavailable (import): %s", e)
-        return None, ""
-    try:
-        engine = GraphComputeEngine()
-        client = getattr(engine, "_client", None)
-        if client is None:
-            return None, ""
-        graph = getattr(engine, "graph_name", None) or _DEFAULT_GRAPH
-        return client, graph
-    except Exception as e:  # noqa: BLE001 — engine unreachable
-        logger.debug("KG ingest: engine unreachable: %s", e)
-        return None, ""
 
 
 def ingest_entities(
@@ -75,57 +47,19 @@ def ingest_entities(
     domain: str = _DOMAIN,
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
+) -> dict[str, int]:
     """Write typed OWL nodes (+ edges) into epistemic-graph.
 
-    ``entities``: ``[{"id":..., "type":<owl:Class>, ...props}]``.
-    ``relationships``: ``[{"source":id, "target":id, "type":<link>}]``.
-    Returns ``{"nodes":n, "edges":m}`` or ``None`` (no engine / failure; never raises).
-    ``client``/``graph`` may be injected (tests); otherwise resolved on demand.
+    Nodes use ``node_type`` and relationships use ``relationship``.
     """
-    entities = [e for e in (entities or []) if e.get("id")]
-    if not entities:
-        return None
-
-    prim = _primitive()
-    if prim is not None and client is None:
-        return prim.ingest_entities(
-            entities, relationships, source=source, domain=domain
-        )
-
-    if client is None:
-        client, graph = _client()
-    if client is None:
-        return None
-    graph = graph or _DEFAULT_GRAPH
-
-    try:
-        txn = client.txn.begin(graph=graph)
-        for ent in entities:
-            props = {k: v for k, v in ent.items() if k != "id" and v is not None}
-            props.setdefault("source", source)
-            props.setdefault("domain", domain)
-            client.txn.add_node(txn, ent["id"], props)
-        committed = client.txn.commit(txn)
-    except Exception as e:  # noqa: BLE001 — engine/txn failure is non-fatal
-        logger.warning("KG ingest: txn failed: %s", e)
-        return None
-    if not committed:
-        logger.warning("KG ingest: txn not committed (conflict)")
-        return None
-
-    edges = 0
-    for rel in relationships or []:
-        try:
-            client.edges.add(
-                rel["source"], rel["target"], {"type": rel.get("type", "RELATED")}
-            )
-            edges += 1
-        except Exception as e:  # noqa: BLE001 — pure edge link, best-effort
-            logger.debug("KG ingest: edge skipped: %s", e)
-
-    logger.info("KG ingest: wrote %d nodes, %d edges", len(entities), edges)
-    return {"nodes": len(entities), "edges": edges}
+    return _native_ingest_entities(
+        entities,
+        relationships,
+        source=source,
+        domain=domain,
+        client=client,
+        graph=graph,
+    )
 
 
 def ingest_documents(
@@ -135,33 +69,18 @@ def ingest_documents(
     domain: str = _DOMAIN,
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
+) -> dict[str, int]:
     """Write text records as ``:Document`` nodes (semantic-search fodder).
 
     Each doc: ``{"id":..., "text":..., "title"?:..., "source_uri"?:..., ...props}``.
-    Returns ``{"nodes":n, "edges":0}`` or ``None``.
+    The native primitive performs validation, enrichment stamping, and commit.
     """
-    prim = _primitive()
-    if prim is not None and client is None:
-        return prim.ingest_documents(documents, source=source, domain=domain)
-
-    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    nodes: list[dict[str, Any]] = []
-    for doc in documents or []:
-        did = doc.get("id")
-        text = doc.get("text") or doc.get("content")
-        if not did or not text:
-            continue
-        node = {k: v for k, v in doc.items() if k != "content" and v is not None}
-        node["id"] = did
-        node["type"] = "Document"
-        node["text"] = text
-        node.setdefault("created_at", now)
-        nodes.append(node)
-    if not nodes:
-        return None
-    return ingest_entities(
-        nodes, None, source=source, domain=domain, client=client, graph=graph
+    return _native_ingest_documents(
+        documents,
+        source=source,
+        domain=domain,
+        client=client,
+        graph=graph,
     )
 
 
@@ -204,7 +123,7 @@ def _category_for(action: str) -> str:
 
 
 def ingest_actions(
-    actions: list[str] | list[dict[str, Any]],
+    actions: list[str | dict[str, Any]],
     *,
     client: Any | None = None,
     graph: str | None = None,
@@ -225,13 +144,15 @@ def ingest_actions(
         entities.append(
             {
                 "id": f"stirlingpdf:tool:{_slug(name)}",
-                "type": "PdfTool",
+                "node_type": "PdfTool",
                 "name": name,
                 "actionName": name,
                 "category": _category_for(name),
                 "externalToolId": name,
             }
         )
+    if not entities:
+        return None
     return ingest_entities(entities, None, client=client, graph=graph)
 
 
@@ -254,7 +175,7 @@ def ingest_operation(
     output blob (``:produced``), to its input blob (``:hasInput``), and — when both blob ids
     are present — records the ``:derivedFrom`` provenance edge from output back to input.
     For add-watermark operations, also emits a ``:Watermark`` node (``:appliedWatermark``).
-    ``input_asset_id`` / ``output_asset_id`` are the ``:MediaAsset`` ids returned by
+    ``input_asset_id`` / ``output_asset_id`` are the ``:AssetOccurrence`` ids returned by
     :func:`stirlingpdf_agent.kg_media.ingest_pdf_bytes`.
     """
     if not action:
@@ -265,7 +186,7 @@ def ingest_operation(
 
     op_node: dict[str, Any] = {
         "id": op_id,
-        "type": "PdfOperation",
+        "node_type": "PdfOperation",
         "name": action,
         "actionName": action,
         "category": _category_for(action),
@@ -279,7 +200,7 @@ def ingest_operation(
         op_node,
         {
             "id": tool_id,
-            "type": "PdfTool",
+            "node_type": "PdfTool",
             "name": action,
             "actionName": action,
             "category": _category_for(action),
@@ -287,20 +208,24 @@ def ingest_operation(
         },
     ]
     relationships: list[dict[str, Any]] = [
-        {"source": op_id, "target": tool_id, "type": "usedTool"},
+        {"source": op_id, "target": tool_id, "relationship": "usedTool"},
     ]
 
     if input_asset_id:
         relationships.append(
-            {"source": op_id, "target": input_asset_id, "type": "hasInput"}
+            {"source": op_id, "target": input_asset_id, "relationship": "hasInput"}
         )
     if output_asset_id:
         relationships.append(
-            {"source": op_id, "target": output_asset_id, "type": "produced"}
+            {"source": op_id, "target": output_asset_id, "relationship": "produced"}
         )
     if input_asset_id and output_asset_id:
         relationships.append(
-            {"source": output_asset_id, "target": input_asset_id, "type": "derivedFrom"}
+            {
+                "source": output_asset_id,
+                "target": input_asset_id,
+                "relationship": "derivedFrom",
+            }
         )
 
     if "watermark" in action.lower() and params.get("watermarkText"):
@@ -308,7 +233,7 @@ def ingest_operation(
         entities.append(
             {
                 "id": wm_id,
-                "type": "Watermark",
+                "node_type": "Watermark",
                 "name": params.get("watermarkText"),
                 "watermarkText": params.get("watermarkText"),
                 "watermarkType": params.get("watermarkType", "text"),
@@ -317,7 +242,7 @@ def ingest_operation(
             }
         )
         relationships.append(
-            {"source": op_id, "target": wm_id, "type": "appliedWatermark"}
+            {"source": op_id, "target": wm_id, "relationship": "appliedWatermark"}
         )
 
     return ingest_entities(entities, relationships, client=client, graph=graph)

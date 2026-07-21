@@ -1,11 +1,9 @@
-"""MCP tools for pdf operations.
-
-Auto-generated from mcp_server.py during ecosystem standardization.
-"""
+"""Canonical MCP tools for PDF operations."""
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import dispatch, run_blocking
+from agent_utilities.mcp.action_dispatch import dispatch_async, parse_json_object
+from agent_utilities.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -15,18 +13,7 @@ from stirlingpdf_agent.auth import get_client
 
 def _coerce_pdf_result(res: Any) -> dict:
     """Normalize a Stirling PDF API result into a JSON-safe dict."""
-    if hasattr(res, "dict") and callable(res.dict):
-        res_dict = res.dict()
-        if isinstance(res_dict, dict):
-            # If Response wraps binary data, encode it as base64 and remove requests.Response
-            if "data" in res_dict and isinstance(res_dict["data"], bytes):
-                import base64
-
-                res_dict["data"] = base64.b64encode(res_dict["data"]).decode("utf-8")
-            if "response" in res_dict:
-                res_dict.pop("response", None)
-            return res_dict
-    elif hasattr(res, "model_dump") and callable(res.model_dump):
+    if hasattr(res, "model_dump") and callable(res.model_dump):
         res_dict = res.model_dump()
         if isinstance(res_dict, dict):
             if "data" in res_dict and isinstance(res_dict["data"], bytes):
@@ -58,20 +45,41 @@ def register_pdf_tools(mcp: FastMCP):
         """Execute any Stirling PDF API action dynamically."""
         if ctx:
             await ctx.info(f"Executing Stirling PDF action: {action}...")
-        import json
-
         try:
-            kwargs = json.loads(params_json) if params_json else {}
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            kwargs = parse_json_object(params_json)
+        except ValueError as e:
+            # parse_json_object's message never echoes caller input, so it is
+            # safe to return verbatim (unlike a raw json.JSONDecodeError).
+            return {"error": str(e)}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
-        return await run_blocking(
-            dispatch,
+        return await dispatch_async(
             client,
             action,
             kwargs,
             service="stirlingpdf-agent",
             result_coercer=_coerce_pdf_result,
+            ctx=ctx,
         )
+
+    @mcp.tool(tags={"PDF", "kg"}, name="stirlingpdf_ingest_tools")
+    async def stirlingpdf_ingest_tools(
+        client=Depends(get_client),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> dict:
+        """Ingest available actions as governed :PdfTool nodes.
+
+        CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        """
+        if ctx:
+            await ctx.info("Discovering + ingesting Stirling PDF tools...")
+        from agent_utilities.mcp.action_dispatch import public_actions
+
+        from stirlingpdf_agent.kg_ingest import ingest_actions
+
+        actions = await run_blocking(public_actions, client)
+        result = await run_blocking(ingest_actions, list(actions))
+        return {"listed": len(actions), "ingested": result}
