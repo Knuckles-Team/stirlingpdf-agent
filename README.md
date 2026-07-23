@@ -15,7 +15,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/stirlingpdf-agent)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/stirlingpdf-agent)
 
-*Version: 1.0.1*
+*Version: 2.0.0*
 
 > **Documentation** — Installation, deployment, usage across the MCP, API, and CLI
 > interfaces, and guidance for provisioning the Stirling PDF service are maintained in
