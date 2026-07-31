@@ -3,7 +3,7 @@ connector: stirlingpdf-agent
 ontology_source: stirlingpdf
 sync:
 - preset: stirlingpdf-tools
-  server: stirlingpdf-agent
+  server: stirlingpdf-mcp
   tool: stirlingpdf_ingest_tools
   action: get
   records_path: actions
