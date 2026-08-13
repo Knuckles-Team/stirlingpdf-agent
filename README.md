@@ -326,7 +326,7 @@ the detailed transport contract for all four transports — **stdio**, **streama
   `docker run`, or `podman run` as a reviewed, least-privilege stdio child with no
   listener or published port, or point at a local streamable-http container by `url`.
 - **Remote URL** — connect through an operator-supplied authenticated HTTPS ingress
-  (for example a server deployed behind Caddy at `http://stirlingpdf-mcp.arpa/mcp`)
+  (for example a server deployed behind Caddy at `https://stirlingpdf-mcp.example.invalid/mcp`)
   using the `"url"` key. Keep its URL, outbound identity references, trust profile,
   and exact `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->

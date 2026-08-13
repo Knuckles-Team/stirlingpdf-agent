@@ -163,19 +163,19 @@ uv run stirlingpdf-mcp --transport streamable-http --port 8000
 ### 4. Remote URL (authenticated ingress)
 
 When the server is deployed remotely (e.g. as a Docker service) behind an authenticated
-TLS-terminating ingress — for example Caddy on the internal `*.arpa` zone — connect with
+TLS-terminating ingress — for example Caddy at a deployment-selected hostname — connect with
 the `"url"` key; no local process or image is required:
 
 ```json
 {
   "mcpServers": {
-    "stirlingpdf-mcp": { "url": "http://stirlingpdf-mcp.arpa/mcp" }
+    "stirlingpdf-mcp": { "url": "https://stirlingpdf-mcp.example.invalid/mcp" }
   }
 }
 ```
 
-Caddy reverse-proxies `http://stirlingpdf-mcp.arpa` to the container's `:8000`
-streamable-http listener; `http://stirlingpdf-mcp.arpa/health` returns
+Caddy reverse-proxies `https://stirlingpdf-mcp.example.invalid` to the container's `:8000`
+streamable-http listener; `https://stirlingpdf-mcp.example.invalid/health` returns
 `{"status":"OK"}` when the service is live. Store the real remote URL, outbound
 identity reference, and TLS-profile reference in `AgentConfig` — never in the MCP
 client JSON or in documentation.
