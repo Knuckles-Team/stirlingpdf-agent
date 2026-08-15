@@ -7,11 +7,8 @@
         "stirlingpdf-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "condensed",
-        "PDFTOOL": "True",
-        "STIRLINGPDF_API_KEY": "",
-        "STIRLINGPDF_TOKEN": "",
-        "STIRLINGPDF_URL": ""
+        "MCP_TOOL_MODE": "intent",
+        "PDFTOOL": "True"
       }
     }
   }

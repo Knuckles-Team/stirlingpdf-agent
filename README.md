@@ -84,15 +84,15 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
 | `knucklessg1/stirlingpdf-agent:mcp` | `--target mcp` | `stirlingpdf-agent[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `stirlingpdf-mcp` |
-| `knucklessg1/stirlingpdf-agent:latest` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `stirlingpdf-agent` |
+| `knucklessg1/stirlingpdf-agent:2.1.0` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `stirlingpdf-agent` |
 
 ```bash
 docker build --target mcp   -t knucklessg1/stirlingpdf-agent:mcp    docker/   # connector-focused MCP server
-docker build --target agent -t knucklessg1/stirlingpdf-agent:latest docker/   # agent runtime
+docker build --target agent -t knucklessg1/stirlingpdf-agent:2.1.0 docker/   # agent runtime
 ```
 
 `docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
-agent (`:latest`) with a co-located `:mcp` sidecar. Both compose files require the deployed
+agent (`:2.1.0`) with a co-located `:mcp` sidecar. Both compose files require the deployed
 image to be pinned by digest via `STIRLINGPDF_AGENT_MCP_IMAGE` / `STIRLINGPDF_AGENT_AGENT_IMAGE`
 (e.g. `knucklessg1/stirlingpdf-agent@sha256:<digest>`) — least-privilege, read-only,
 non-root (`10001:10001`) containers with no floating tag in production.
@@ -149,11 +149,12 @@ The table below is auto-generated from the MCP server — do not edit by hand.
 
 <!-- MCP-TOOLS-TABLE:START -->
 
-#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+#### Condensed action-routed tools (`MCP_TOOL_MODE=condensed`)
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
 | `pdf_action` | `PDFTOOL` | Execute any Stirling PDF API action dynamically. |
+| `stirlingpdf_ingest_tools` | `PDFTOOL` | Ingest available actions as governed :PdfTool nodes. |
 
 #### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
 
@@ -166,7 +167,7 @@ The table below is auto-generated from the MCP server — do not edit by hand.
 
 </details>
 
-_1 action-routed tool(s) (default) · 1 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_2 action-routed tool(s) · 1 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 ---
@@ -214,11 +215,8 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "stirlingpdf-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "condensed",
-        "PDFTOOL": "True",
-        "STIRLINGPDF_API_KEY": "",
-        "STIRLINGPDF_TOKEN": "",
-        "STIRLINGPDF_URL": ""
+        "MCP_TOOL_MODE": "intent",
+        "PDFTOOL": "True"
       }
     }
   }
@@ -249,11 +247,8 @@ own runtime secret boundary.
         "TRANSPORT": "streamable-http",
         "HOST": "127.0.0.1",
         "PORT": "8000",
-        "MCP_TOOL_MODE": "condensed",
-        "PDFTOOL": "True",
-        "STIRLINGPDF_API_KEY": "",
-        "STIRLINGPDF_TOKEN": "",
-        "STIRLINGPDF_URL": ""
+        "MCP_TOOL_MODE": "intent",
+        "PDFTOOL": "True"
       }
     }
   }
@@ -272,24 +267,7 @@ Alternatively, connect to a pre-deployed Streamable-HTTP instance by `url`:
 }
 ```
 
-Deploying the Streamable-HTTP server via Docker (networked):
-
-```bash
-docker run -d \
-  --name stirlingpdf-mcp-mcp \
-  -p 127.0.0.1:8000:8000 \
-  -e TRANSPORT=streamable-http \
-  -e HOST=0.0.0.0 \
-  -e PORT=8000 \
-  -e MCP_TOOL_MODE=condensed \
-  -e PDFTOOL=True \
-  -e STIRLINGPDF_API_KEY="" \
-  -e STIRLINGPDF_TOKEN="" \
-  -e STIRLINGPDF_URL="" \
-  knucklessg1/stirlingpdf-agent@sha256:<digest>
-```
-
-Or run a reviewed container image as a least-privilege stdio child (no
+Run a reviewed container image as a least-privilege stdio child (no
 listener or published port):
 
 ```bash
@@ -300,15 +278,15 @@ docker run -i --rm \
   --pids-limit=256 \
   --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
   -e TRANSPORT=stdio \
-  -e MCP_TOOL_MODE=condensed \
+  -e MCP_TOOL_MODE=intent \
   -e PDFTOOL=True \
-  knucklessg1/stirlingpdf-agent@sha256:<digest> stirlingpdf-mcp
+  registry.example.invalid/stirlingpdf-agent@sha256:<digest> stirlingpdf-mcp
 ```
 
 For containerized network HTTP, supply an authenticated TLS ingress (or
 direct server TLS), exact `MCP_ALLOWED_HOSTS`, and an exact trusted-proxy
-CIDR policy through the operator-owned deployment profile. Never run an
-unauthenticated non-loopback listener.
+CIDR policy through the operator-owned deployment profile. The generator
+does not emit an unauthenticated non-loopback listener.
 
 _Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
 <!-- MCP-CONFIG-EXAMPLES:END -->
@@ -408,31 +386,33 @@ services:
 | `TRANSPORT` | `stdio` | options: stdio, streamable-http, sse |
 | `ENABLE_OTEL` | `True` |  |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:8080/api/public/otel` |  |
-| `OTEL_EXPORTER_OTLP_PUBLIC_KEY` | `pk-...` |  |
-| `OTEL_EXPORTER_OTLP_SECRET_KEY` | `sk-...` |  |
+| `OTEL_EXPORTER_OTLP_PUBLIC_KEY_REF` | `vault-ref-to-pk` |  |
+| `OTEL_EXPORTER_OTLP_SECRET_KEY_REF` | `vault-ref-to-sk` |  |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` |  |
 | `EUNOMIA_TYPE` | `none` | options: none, embedded, remote |
 | `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
 | `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
 | `PDFTOOL` | `True` |  |
-| `STIRLINGPDF_URL` | Required |  |
-| `STIRLINGPDF_API_KEY` | — |  |
-| `STIRLINGPDF_TOKEN` | — | alternate to STIRLINGPDF_API_KEY (bearer token) |
-| `TLS_PROFILE` | — | Named `AgentConfig` transport-security profile; verification is mandatory. |
-| `TLS_PROFILES_REF` | — | Runtime secret reference for the TLS profile catalog. |
+| `STIRLINGPDF_URL` | — |  |
+| `STIRLINGPDF_API_KEY` | secret-injected |  |
+| `STIRLINGPDF_TOKEN` | secret-injected | alternate to STIRLINGPDF_API_KEY (bearer token) |
+| `TLS_PROFILE` | `private-pki` | TLS verification is mandatory. Select a named runtime profile from AgentConfig. |
+| `TLS_PROFILES_REF` | `secret://runtime/tls-profiles` |  |
 
 #### Inherited agent-utilities variables (apply to every connector)
 
 | Variable | Example | Description |
 |----------|---------|-------------|
-| `MCP_TOOL_MODE` | `condensed` | Tool surface: `condensed` | `verbose` | `both` |
+| `MCP_TOOL_MODE` | `intent` | Tool surface: `intent` \| `condensed` \| `verbose` \| `both` |
 | `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
 | `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
 | `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
 | `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
-| `MCP_CLIENT_AUTH` | — | Outbound MCP auth (`oidc-client-credentials` for fleet calls) |
+| `MCP_CLIENT_AUTH` | — | Outbound MCP child auth: `oidc-client-credentials` \| `basic` \| `none` |
 | `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
-| `OIDC_CLIENT_SECRET` | — | OIDC client secret (service-account auth) |
+| `OIDC_CLIENT_SECRET_REF` | `secret://identity/oidc-client-secret` | Runtime secret reference for the OIDC service account |
+| `MCP_BASIC_AUTH_USERNAME` | — | HTTP Basic username (`MCP_CLIENT_AUTH=basic`) |
+| `MCP_BASIC_AUTH_PASSWORD_REF` | `secret://identity/mcp-basic-password` | Runtime secret reference for HTTP Basic auth (`MCP_CLIENT_AUTH=basic`) |
 | `DEBUG` | `False` | Verbose logging |
 | `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
 | `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
@@ -440,7 +420,7 @@ services:
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_17 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_17 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
  Reference
 
