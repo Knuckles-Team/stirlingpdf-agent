@@ -1,8 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "a2a.json": "ea13a0a283418959556b421025531970ff851b1fb7cccf960c2b7f70e7c9b14d",
-    "connector_manifest.yml": "32f7b489864b468c8f2b2de6333612a81fa91de3f8a06bfe6528b39d356a06e1",
+    "connector_manifest.yml": "8cad5428036a99d3f006904069d03970fc286e45694b1ad88d8da9e30010419c",
     "stirlingpdf_agent/connectors/mcp_source_presets.json": "1058a7ee1ec993676d03a03be62646916319af8af494fd33203bc183f5414496",
     "stirlingpdf_agent/connectors/tool_schema_fingerprints.json": "2348cf0f9f9ebfe324f6b75b1a061b36f89d9b09f55c814247a28a7386c0bbaa",
     "stirlingpdf_agent/ontology/fixtures/records.json": "c2b3b079b2a331f0cfb61956173998739eefe23bf92c4baf10786eb4533957cc",
@@ -19,19 +18,19 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.1.0,<3",
+    "agent_utilities": ">=2.4.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.23.0,<3"
+    "epistemic_graph": ">=2.26.0,<3"
   },
   "connector": "stirlingpdf-agent",
   "kind": "ConnectorSourceAttestation",
   "live_certified": false,
   "mode": "offline-source",
   "schema_version": "2",
-  "signature": "2wHCVwvj_K7pGv8YLPzTi9PeknxnGr27VcD88kl_HjeA49rgeJHKpLLGcOSSz0Hu0bJlmm66MEGMsfAjGBuVDA",
-  "signature_algorithm": "ed25519",
-  "signer": "ontology-manifest-generator",
-  "signing_public_key": "QkigdPNpcUU7x7NcSkwCsUXIQpaFncMQbYSoiSgI2SY",
+  "signature": null,
+  "signature_algorithm": "none",
+  "signer": "UNSIGNED-PREVIEW",
+  "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-07-31T04:00:00Z"
+  "validated_at": "2026-08-21T04:30:39Z"
 }
