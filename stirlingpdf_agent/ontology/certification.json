@@ -1,7 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "8cad5428036a99d3f006904069d03970fc286e45694b1ad88d8da9e30010419c",
+    "connector_manifest.yml": "a7ba012862b53337a9afd293de99ea0e2c40799184c980b8533284ec1296c7dc",
     "stirlingpdf_agent/connectors/mcp_source_presets.json": "1058a7ee1ec993676d03a03be62646916319af8af494fd33203bc183f5414496",
     "stirlingpdf_agent/connectors/tool_schema_fingerprints.json": "2348cf0f9f9ebfe324f6b75b1a061b36f89d9b09f55c814247a28a7386c0bbaa",
     "stirlingpdf_agent/ontology/fixtures/records.json": "c2b3b079b2a331f0cfb61956173998739eefe23bf92c4baf10786eb4533957cc",
@@ -18,9 +18,9 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.4.0,<3",
+    "agent_utilities": ">=2.5.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.26.0,<3"
+    "epistemic_graph": ">=2.27.0,<3"
   },
   "connector": "stirlingpdf-agent",
   "kind": "ConnectorSourceAttestation",
@@ -32,5 +32,5 @@
   "signer": "UNSIGNED-PREVIEW",
   "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-08-21T04:30:39Z"
+  "validated_at": "2026-08-26T13:42:55Z"
 }
