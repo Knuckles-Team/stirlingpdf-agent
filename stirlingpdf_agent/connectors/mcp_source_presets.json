@@ -3,11 +3,11 @@
   "stirlingpdf-tools": {
     "server": "stirlingpdf-mcp",
     "tool": "stirlingpdf_ingest_tools",
-    "action": "get",
     "records_path": "actions",
     "id_field": "name",
     "title_field": "name",
     "text_field": "name",
-    "doc_type": "pdf_tool"
+    "doc_type": "pdf_tool",
+    "params_style": "args"
   }
 }
