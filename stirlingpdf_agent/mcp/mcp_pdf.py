@@ -63,7 +63,19 @@ def register_pdf_tools(mcp: FastMCP):
             ctx=ctx,
         )
 
-    @mcp.tool(tags={"PDF", "kg"}, name="stirlingpdf_ingest_tools")
+    @mcp.tool(
+        tags={"PDF", "kg"},
+        name="stirlingpdf_ingest_tools",
+        annotations={
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": True,
+        },
+        meta={
+            "eg.annotations": {"modalities_in": ["text"], "modalities_out": ["text"]}
+        },
+    )
     async def stirlingpdf_ingest_tools(
         client=Depends(get_client),
         ctx: Context | None = Field(
