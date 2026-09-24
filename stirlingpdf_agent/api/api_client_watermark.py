@@ -1,11 +1,11 @@
 import sys
 
 import requests
-from agent_utilities.core.decorators import require_auth
-from agent_utilities.core.exceptions import (
+from agent_connector_sdk.exceptions import (
     AuthError,
     ParameterError,
     UnauthorizedError,
+    require_auth,
 )
 from pydantic import ValidationError
 
