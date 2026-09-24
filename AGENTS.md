@@ -24,7 +24,6 @@ The following core concepts are defined and traced across the Stirling PDF Agent
   - Implementations: `stirlingpdf_agent/api_client.py`, `stirlingpdf_agent/api/api_client_watermark.py`
 - **`SP-OS.scaling.stirlingpdf-2`**: **Pydantic AI Graph Agent & Server Integration**
   - Traces the control loops, agent servers, and interaction with ACP / Web UI interfaces.
-  - Implementations: `stirlingpdf_agent/agent_server.py`, `stirlingpdf_agent/agent.py`
 
 ### Architecture Diagram
 ```mermaid
@@ -64,7 +63,7 @@ pip install .[all]
 pre-commit run --all-files
 
 # Execution Commands
-# stirlingpdf-mcp\nstirlingpdf_agent.mcp:mcp_server\n# stirlingpdf-agent\nstirlingpdf_agent.agent:agent_server
+# stirlingpdf-mcp\nstirlingpdf_agent.mcp:mcp_server
 
 ## Project Structure Quick Reference
 - MCP Entry Point → `mcp_server.py`
@@ -74,7 +73,7 @@ pre-commit run --all-files
 
 ### File Tree
 ```text
-├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── pyproject.toml\n├── requirements.txt\n├── stirlingpdf_agent\n│   ├── __init__.py\n│   ├── agent_server.py\n│   ├── auth.py\n│   ├── mcp_server.py\n│   ├── skills\n│   │   └── stirlingpdf-agent-docs\n│   ├── stirlingpdf_agent_models.py\n│   └── stirlingpdf_api.py\n└── stirlingpdf_agent.egg-info\n    ├── PKG-INFO\n    ├── SOURCES.txt\n    ├── dependency_links.txt\n    ├── entry_points.txt\n    ├── requires.txt\n    └── top_level.txt
+├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── pyproject.toml\n├── requirements.txt\n├── stirlingpdf_agent\n│   ├── __init__.py\n│   ├── auth.py\n│   ├── mcp_server.py\n│   ├── skills\n│   │   └── stirlingpdf-agent-docs\n│   ├── stirlingpdf_agent_models.py\n│   └── stirlingpdf_api.py\n└── stirlingpdf_agent.egg-info\n    ├── PKG-INFO\n    ├── SOURCES.txt\n    ├── dependency_links.txt\n    ├── entry_points.txt\n    ├── requires.txt\n    └── top_level.txt
 ```
 
 ## Code Style & Conventions

@@ -17,7 +17,6 @@ from agent_connector_sdk.exceptions import (
 )
 
 import stirlingpdf_agent
-from stirlingpdf_agent.agent_server import agent_server
 from stirlingpdf_agent.api_client import StirlingPdfApi
 from stirlingpdf_agent.auth import get_client
 from stirlingpdf_agent.mcp_server import (
@@ -88,8 +87,11 @@ def test_main():
     Test main entrypoint.
 
     CONCEPT:SP-OS.scaling.stirlingpdf-2
+
+    agent_server was retired fleet-wide; __main__.py now runs the MCP server
+    directly.
     """
-    with patch("stirlingpdf_agent.agent_server.agent_server") as mock_server:
+    with patch("stirlingpdf_agent.mcp_server.mcp_server") as mock_server:
         runpy.run_module("stirlingpdf_agent", run_name="__main__")
         mock_server.assert_called_once()
 
@@ -467,86 +469,5 @@ def test_mcp_server_main():
         mock_run.assert_called_once_with(transport="stdio")
 
 
-# ==========================================
-# 8. Agent Server agent_server.py Tests
-# ==========================================
-
-
-def test_agent_server_run():
-    mock_parser = MagicMock()
-    mock_args = MagicMock()
-    mock_parser.parse_args.return_value = mock_args
-
-    mock_args.debug = True
-    mock_args.mcp_url = "http://localhost:8000"
-    mock_args.mcp_config = "mcp_config.json"
-    mock_args.host = "127.0.0.1"
-    mock_args.port = 8000
-    mock_args.provider = "openai"
-    mock_args.model_id = "gpt-4o"
-    mock_args.base_url = "http://openai.com"
-    mock_args.api_key = "test"
-    mock_args.custom_skills_directory = None
-    mock_args.web = True
-    mock_args.otel = False
-    mock_args.otel_endpoint = None
-    mock_args.otel_headers = None
-    mock_args.otel_public_key = None
-    mock_args.otel_secret_key = None
-    mock_args.otel_protocol = None
-
-    with (
-        patch("agent_utilities.initialize_workspace") as mock_init,
-        patch(
-            "agent_utilities.load_identity",
-            return_value={
-                "name": "Stirling PDF Test Agent",
-                "description": "Desc",
-                "content": "Prompt",
-            },
-        ),
-        patch("agent_utilities.create_agent_parser", return_value=mock_parser),
-        patch("agent_utilities.create_agent_server") as mock_create_server,
-    ):
-        agent_server()
-
-        mock_init.assert_called_once()
-        mock_create_server.assert_called_once()
-
-
-def test_agent_server_main():
-    with (
-        patch("agent_utilities.initialize_workspace"),
-        patch(
-            "agent_utilities.load_identity",
-            return_value={
-                "name": "Stirling PDF Test Agent",
-                "description": "Desc",
-                "content": "Prompt",
-            },
-        ),
-        patch("agent_utilities.create_agent_parser") as mock_parser,
-        patch("agent_utilities.create_agent_server"),
-    ):
-        mock_args = MagicMock()
-        mock_args.debug = False
-        mock_args.mcp_url = "http://localhost:8000"
-        mock_args.mcp_config = "mcp_config.json"
-        mock_args.host = "127.0.0.1"
-        mock_args.port = 8000
-        mock_args.provider = "openai"
-        mock_args.model_id = "gpt-4o"
-        mock_args.base_url = "http://openai.com"
-        mock_args.api_key = "test"
-        mock_args.custom_skills_directory = None
-        mock_args.web = True
-        mock_args.otel = False
-        mock_args.otel_endpoint = None
-        mock_args.otel_headers = None
-        mock_args.otel_public_key = None
-        mock_args.otel_secret_key = None
-        mock_args.otel_protocol = None
-        mock_parser.return_value.parse_args.return_value = mock_args
-
-        # Run the module as __main__ to execute the if __name__ == '__main__': block
-        runpy.run_module("stirlingpdf_agent.agent_server", run_name="__main__")
+# agent_server.py was retired fleet-wide (operator ruling); its tests were
+# removed with it.

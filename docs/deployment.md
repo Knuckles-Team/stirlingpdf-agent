@@ -275,46 +275,6 @@ docker compose -f docker/mcp.compose.yml up -d
 docker compose -f docker/mcp.compose.yml logs -f
 ```
 
-## Run the A2A agent server
-
-The agent server is a Pydantic-AI agent (console script `stirlingpdf-agent`) that
-connects to the MCP server over `MCP_URL` and exposes an A2A / web-UI surface. It
-listens on port `9004`:
-
-```bash
-export STIRLINGPDF_URL=<configured-endpoint>
-export STIRLINGPDF_API_KEY=your_token
-export MCP_URL=http://localhost:8000/mcp
-stirlingpdf-agent --provider openai --model-id gpt-4o --api-key sk-...
-```
-
-The repo ships [`docker/agent.compose.yml`](https://github.com/Knuckles-Team/stirlingpdf-agent/blob/main/docker/agent.compose.yml),
-which deploys the MCP server and the agent server together. The agent service wires
-itself to the MCP server by container name:
-
-```yaml
-services:
-  stirlingpdf-agent-agent:
-    image: knucklessg1/stirlingpdf-agent@sha256:<digest>
-    container_name: stirlingpdf-agent-agent
-    depends_on:
-      - stirlingpdf-agent-mcp
-    command: ["stirlingpdf-agent"]
-    environment:
-      - HOST=0.0.0.0
-      - PORT=9004
-      - MCP_URL=http://stirlingpdf-agent-mcp:8000/mcp
-      - PROVIDER=${PROVIDER:-openai}
-      - MODEL_ID=${MODEL_ID:-gpt-4o}
-      - ENABLE_WEB_UI=True
-    ports:
-      - "9004:9004"
-```
-
-```bash
-docker compose -f docker/agent.compose.yml up -d
-```
-
 ## Behind a Caddy reverse proxy
 
 Expose the HTTP server on a hostname with automatic TLS. Add to your `Caddyfile`:
