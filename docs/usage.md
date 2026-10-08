@@ -1,7 +1,7 @@
 # Usage — MCP / API / CLI
 
-`stirlingpdf-agent` exposes the same capability several ways: as an **MCP tool** an
-agent calls, as a **Python API** (`StirlingPdfApi`) you import, and as **CLI** console
+`stirlingpdf-agent` exposes the same capability multiple ways: as an **MCP tool** an
+agent calls, as a **Python API** (`StirlingPdfApi`) the operator import, and as **CLI** console
 scripts. The agent-package pattern is described in [Architecture](overview.md).
 
 ## As an MCP server
@@ -24,7 +24,7 @@ The `pdf_action` tool takes an `action` (the method to invoke on `StirlingPdfApi
 ## As a Python API
 
 `StirlingPdfApi` is a `requests`-based REST client over the Stirling PDF `/api/v1`
-surface. Construct it directly, or use `get_client()` to build one from the
+surface. Build it directly, or use `get_client()` to build one from the
 environment.
 
 ```python
@@ -66,7 +66,7 @@ stirlingpdf-mcp --transport streamable-http --host 0.0.0.0 --port 8000
 stirlingpdf-agent --provider openai --model-id gpt-4o --api-key sk-...
 ```
 
-Both read the same `STIRLINGPDF_*` connection variables. The agent server additionally
+Both read the same `STIRLINGPDF_*` connection variables. The agent server also
 honours `MCP_URL` to reach a running MCP server, plus `PROVIDER` / `MODEL_ID` for the
 model backend. See [Deployment](deployment.md) for the full environment table and the
 combined Compose stack.

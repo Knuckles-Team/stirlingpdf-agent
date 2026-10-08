@@ -1,7 +1,7 @@
 # Installation
 
 `stirlingpdf-agent` is a standard Python package and a prebuilt container image. Pick
-the path that matches how you want to run it.
+the path that matches how the operator want to run it.
 
 ## Requirements
 
