@@ -43,14 +43,14 @@
 
 ## Overview
 
-**Stirling PDF Agent** is a production-grade Agent and Model Context Protocol (MCP) server designed to interface directly with Stirling PDF via REST APIs. It provides seamless capability to manipulate, edit, and overlay PDFs (e.g. adding watermarks) programmatically or using large language models.
+**Stirling PDF Agent** is a production-grade Agent and Model Context Protocol (MCP) server designed to interface directly with Stirling PDF via REST APIs. It provides smooth capability to manipulate, edit, and overlay PDFs (e.g. adding watermarks) programmatically or using large language models.
 
 ---
 
 ## Key Features
 
 - **Consolidated Action-Routed MCP Tools:** Minimizes token overhead and eliminates tool bloat in LLM contexts by grouping methods into optimized, togglable tool modules.
-- **Enterprise-Grade Security:** Comprehensive support for Eunomia policies, OIDC token delegation, and granular execution context tracking.
+- **Enterprise-Grade Security:** Complete support for Eunomia policies, OIDC token delegation, and granular execution context tracking.
 - **Integrated Graph Agent:** Built-in Pydantic AI agent supporting the Agent Control Protocol (ACP) and standard Web interfaces (AG-UI).
 - **Native Telemetry & Tracing:** Out-of-the-box OpenTelemetry exports and native Langfuse tracing.
 
@@ -58,12 +58,12 @@
 
 ## Installation
 
-Pick the extra that matches what you want to run:
+Pick the extra that matches what the operator want to run:
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `stirlingpdf-agent[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | You only run the **MCP server** (smallest install / image) |
-| `stirlingpdf-agent[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
+| `stirlingpdf-agent[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
+| `stirlingpdf-agent[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
 | `stirlingpdf-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
@@ -101,7 +101,7 @@ non-root (`10001:10001`) containers with no floating tag in production.
 
 Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
 Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
-the server connector-focused; `[agent]` additionally enables model orchestration. Local
+the server connector-focused; `[agent]` also enables model orchestration. Local
 deployments can use the bundled engine. For production or shared state, run
 **epistemic-graph as a dedicated database service** and configure the runtime to use it.
 Deployment recipes (single-node + Raft HA), connection configuration, and architecture
@@ -141,7 +141,7 @@ with open("watermarked_output.pdf", "wb") as f:
 
 ## MCP Server Mode
 
-This server utilizes dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
+This server use dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
 
 ### Available MCP Tools
 
@@ -174,9 +174,9 @@ _2 action-routed tool(s) · 1 verbose 1:1 tool(s). Each is enabled unless its `<
 
 ### Dynamic Tool Selection & Visibility
 
-This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows you to restrict the set of exposed tools in order to prevent blowing up the LLM's context window.
+This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows the operator to restrict the set of exposed tools to prevent blowing up the LLM's context window.
 
-You can configure tool filtering via multiple input channels:
+The operator can configure tool filtering via multiple input channels:
 
 - **CLI Arguments:** Pass `--tools` or `--toolsets` (or their disabled counterparts `--disabled-tools` and `--disabled-toolsets`) during startup.
 - **Environment Variables:** Define standard environment variables:
@@ -185,11 +185,11 @@ You can configure tool filtering via multiple input channels:
 - **HTTP SSE Request Headers:** Pass custom headers during transport initialization:
   - `x-mcp-enabled-tools` / `x-mcp-disabled-tools`
   - `x-mcp-enabled-tags` / `x-mcp-disabled-tags`
-- **HTTP SSE Request Query Parameters:** Append query parameters directly to your transport connection URL:
+- **HTTP SSE Request Query Parameters:** Append query parameters directly to the operator's transport connection URL:
   - `?tools=tool1,tool2`
   - `?tags=tag1`
 
-When query strings or parameters are supplied, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
+When query strings or parameters are provided, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
 
 ---
 
@@ -311,7 +311,7 @@ the detailed transport contract for all four transports — **stdio**, **streama
 
 ## Agent Mode
 
-This repository features a fully integrated Pydantic AI Graph Agent. It communicates over the **Agent Control Protocol (ACP)** and interacts seamlessly with the **Agent Web UI (AG-UI)** and Terminal interface.
+This repository features a fully integrated Pydantic AI Graph Agent. It communicates over the **Agent Control Protocol (ACP)** and interacts smoothly with the **Agent Web UI (AG-UI)** and Terminal interface.
 
 ### Running the Agent CLI
 To start the interactive command-line agent:
@@ -424,7 +424,7 @@ _17 package + 16 inherited variable(s). Auto-generated from `.env.example` + the
 <!-- ENV-VARS-TABLE:END -->
  Reference
 
-Stirling PDF Agent utilizes both package-specific environment configurations and standard security settings inherited from the `agent-utilities` system core.
+Stirling PDF Agent use both package-specific environment configurations and standard security settings inherited from the `agent-utilities` system core.
 
 ### Stirling PDF Agent Configs
 - **`PDFTOOL`** (bool, default: `True`): Toggles the dynamic PDF action tool registration.
@@ -459,7 +459,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 - **OIDC Token Delegation:** Compliant with RFC 8693 token exchange for flowing authenticating user credentials from Web UI / ACP → Agent → MCP.
 - **Scoped Credentials:** Execution context runs restricted to the specific caller identity.
 
-| Feature Guard | Functionality | Status |
+| Feature Guard | Feature | Status |
 |---------------|---------------|--------|
 | **Tool Guard** | Sensitivity inspection with human-in-the-loop validation | Enabled by default |
 | **Prompt Injection Defense** | Input scanning, repetition monitoring, and recursive loop blocks | Enabled by default |
@@ -469,11 +469,11 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 
 ## Contribute
 
-Contributions are welcome! Please ensure code quality by executing local checks before submitting pull requests:
+Contributions are welcome! Please ensure code quality by running local checks before submitting pull requests:
 - Format code using `ruff format .`
 - Lint code using `ruff check .`
 - Validate type-safety with `mypy .`
-- Execute test suites using `pytest`
+- Ran test suites using `pytest`
 
 ---
 
