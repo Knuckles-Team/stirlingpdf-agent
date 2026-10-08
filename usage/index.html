@@ -811,8 +811,8 @@
 
 
 <h1 id="usage-mcp-api-cli">Usage — MCP / API / CLI<a class="headerlink" href="#usage-mcp-api-cli" title="Permanent link">&para;</a></h1>
-<p><code>stirlingpdf-agent</code> exposes the same capability several ways: as an <strong>MCP tool</strong> an
-agent calls, as a <strong>Python API</strong> (<code>StirlingPdfApi</code>) you import, and as <strong>CLI</strong> console
+<p><code>stirlingpdf-agent</code> exposes the same capability multiple ways: as an <strong>MCP tool</strong> an
+agent calls, as a <strong>Python API</strong> (<code>StirlingPdfApi</code>) the operator import, and as <strong>CLI</strong> console
 scripts. The agent-package pattern is described in <a href="../overview/">Architecture</a>.</p>
 <h2 id="as-an-mcp-server">As an MCP server<a class="headerlink" href="#as-an-mcp-server" title="Permanent link">&para;</a></h2>
 <p>Once <a href="../deployment/">deployed</a>, the server registers an action-routed PDF tool. It is
@@ -841,7 +841,7 @@ PDF service.</p>
 </ul>
 <h2 id="as-a-python-api">As a Python API<a class="headerlink" href="#as-a-python-api" title="Permanent link">&para;</a></h2>
 <p><code>StirlingPdfApi</code> is a <code>requests</code>-based REST client over the Stirling PDF <code>/api/v1</code>
-surface. Construct it directly, or use <code>get_client()</code> to build one from the
+surface. Build it directly, or use <code>get_client()</code> to build one from the
 environment.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">stirlingpdf_agent.api_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">StirlingPdfApi</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
@@ -872,7 +872,7 @@ mandatory verified TLS policy through
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># The A2A agent server (drives the MCP tools via a Pydantic-AI agent)</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>stirlingpdf-agent<span class="w"> </span>--provider<span class="w"> </span>openai<span class="w"> </span>--model-id<span class="w"> </span>gpt-4o<span class="w"> </span>--api-key<span class="w"> </span>sk-...
 </span></code></pre></div>
-<p>Both read the same <code>STIRLINGPDF_*</code> connection variables. The agent server additionally
+<p>Both read the same <code>STIRLINGPDF_*</code> connection variables. The agent server also
 honours <code>MCP_URL</code> to reach a running MCP server, plus <code>PROVIDER</code> / <code>MODEL_ID</code> for the
 model backend. See <a href="../deployment/">Deployment</a> for the full environment table and the
 combined Compose stack.</p>

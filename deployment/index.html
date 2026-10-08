@@ -1286,7 +1286,7 @@ A network server with a <code>/health</code> endpoint and <code>/mcp</code> rout
 <p>The full set, including telemetry (<code>ENABLE_OTEL</code>, OTLP exporter) and access-governance
 (<code>EUNOMIA_*</code>) variables, is documented in
 <a href="https://github.com/Knuckles-Team/stirlingpdf-agent/blob/main/.env.example"><code>.env.example</code></a>.
-Copy it to <code>.env</code> and populate only what you use.</p>
+Copy it to <code>.env</code> and populate only what the operator use.</p>
 <h2 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h2>
 <p>The repo ships <a href="https://github.com/Knuckles-Team/stirlingpdf-agent/blob/main/docker/mcp.compose.yml"><code>docker/mcp.compose.yml</code></a>.
 It reads a sibling <code>.env</code> and publishes the HTTP server on <code>:8000</code>:</p>
@@ -1347,7 +1347,7 @@ itself to the MCP server by container name:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/agent.compose.yml<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
 <h2 id="behind-a-caddy-reverse-proxy">Behind a Caddy reverse proxy<a class="headerlink" href="#behind-a-caddy-reverse-proxy" title="Permanent link">&para;</a></h2>
-<p>Expose the HTTP server on a hostname with automatic TLS. Add to your <code>Caddyfile</code>:</p>
+<p>Expose the HTTP server on a hostname with automatic TLS. Add to the operator's <code>Caddyfile</code>:</p>
 <div class="language-caddy highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Internal (self-signed) — homelab .example.invalid zone</span>
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>stirlingpdf-agent.example.invalid<span class="w"> </span><span class="p">{</span>
 </span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="k">tls</span><span class="w"> </span>internal
@@ -1377,7 +1377,7 @@ web console (<code>http://technitium.example.invalid:5380</code>). The ecosystem
 <a href="https://knuckles-team.github.io/technitium-dns-mcp/"><code>technitium-dns-mcp</code></a> automates
 this as a tool.</p>
 <h2 id="register-with-an-mcp-client">Register with an MCP client<a class="headerlink" href="#register-with-an-mcp-client" title="Permanent link">&para;</a></h2>
-<p>Add to your client's <code>mcp_config.json</code>:</p>
+<p>Add to the operator's client's <code>mcp_config.json</code>:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="p">{</span>
 </span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">  </span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="nt">"stirlingpdf-agent"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
