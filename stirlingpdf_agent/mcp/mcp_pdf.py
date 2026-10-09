@@ -2,8 +2,8 @@
 
 from typing import Any
 
-from agent_utilities.mcp.action_dispatch import dispatch_async, parse_json_object
-from agent_utilities.mcp.concurrency import run_blocking
+from agent_connector_sdk.mcp.action_dispatch import dispatch_async, parse_json_object
+from agent_connector_sdk.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -76,7 +76,7 @@ def register_pdf_tools(mcp: FastMCP):
         """
         if ctx:
             await ctx.info("Discovering + ingesting Stirling PDF tools...")
-        from agent_utilities.mcp.action_dispatch import public_actions
+        from agent_connector_sdk.mcp.action_dispatch import public_actions
 
         from stirlingpdf_agent.kg_ingest import ingest_actions
 

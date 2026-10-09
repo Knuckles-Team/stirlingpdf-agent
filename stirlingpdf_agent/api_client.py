@@ -1,4 +1,4 @@
-from agent_utilities.core.transport_security import ResolvedTLSProfile
+from agent_connector_sdk.tls.profile import ResolvedTLSProfile
 
 from stirlingpdf_agent.api.api_client_watermark import WatermarkClient
 

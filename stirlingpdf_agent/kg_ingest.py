@@ -12,9 +12,11 @@ applies to a PDF toolbox:
 * **blobs** — the raw PDF bytes (input and output artifacts) are stored as ``:Blob`` +
   ``:AssetOccurrence`` via :func:`stirlingpdf_agent.kg_media.ingest_pdf_bytes`.
 
-This module is a thin mapper over the required shared write primitive
-``agent_utilities.knowledge_graph.memory.native_ingest``. Engine failures are explicit and
-partial writes are never acknowledged. Node ids follow
+This module is a thin mapper over ``agent_connector_sdk.ingest`` -- the generated
+``SourceIngest`` client, not a local ingestion helper. Every call site here runs on a
+worker thread (never the engine's own event loop), so writes go through
+``KnowledgeIngest.submit_blocking`` rather than the async ``submit``. Engine failures
+are explicit and partial writes are never acknowledged. Node ids follow
 ``stirlingpdf:<class>:<externalId>`` and each ``node_type`` matches a class federated by
 ``stirlingpdf_agent.ontology``.
 """
@@ -26,62 +28,112 @@ import re
 import time
 from typing import Any
 
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_documents as _native_ingest_documents,
-)
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_entities as _native_ingest_entities,
+from agent_connector_sdk.ingest import (
+    ChangeSet,
+    Document,
+    Entity,
+    EntityRef,
+    IngestBinding,
+    IngestError,
+    KnowledgeIngest,
+    Relationship,
+    current_ingest,
 )
 
 logger = logging.getLogger("stirlingpdf_agent.kg")
 
-_SOURCE = "stirlingpdf-agent"
-_DOMAIN = "stirlingpdf"
+_BINDING = IngestBinding(connector="stirlingpdf-agent", stream="stirlingpdf")
+
+
+def _to_entity(record: dict[str, Any]) -> Entity:
+    return Entity(
+        id=record.get("id"),
+        node_type=record.get("node_type"),
+        properties={
+            key: value for key, value in record.items() if key not in ("id", "node_type")
+        },
+    )
+
+
+def _to_relationship(record: dict[str, Any]) -> Relationship:
+    """Build a ``Relationship``, resolving an external source's node_type.
+
+    The SDK's request builder needs the source endpoint's ``node_type`` either
+    from the change set's own entities or an explicit ``EntityRef`` -- never
+    required for the target. ``source_node_type`` carries that for a source
+    (e.g. a media asset id from ``kg_media``) that is not itself part of this
+    change set.
+    """
+    source_node_type = record.get("source_node_type")
+    source = (
+        EntityRef(record["source"], node_type=source_node_type)
+        if source_node_type
+        else record["source"]
+    )
+    properties = {
+        key: value
+        for key, value in record.items()
+        if key not in ("source", "target", "relationship", "source_node_type")
+    }
+    return Relationship(
+        source=source,
+        target=record["target"],
+        relationship=record["relationship"],
+        properties=properties or None,
+    )
 
 
 def ingest_entities(
     entities: list[dict[str, Any]],
     relationships: list[dict[str, Any]] | None = None,
     *,
-    source: str = _SOURCE,
-    domain: str = _DOMAIN,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """Write typed OWL nodes (+ edges) into epistemic-graph.
 
     Nodes use ``node_type`` and relationships use ``relationship``.
     """
-    return _native_ingest_entities(
-        entities,
-        relationships,
-        source=source,
-        domain=domain,
-        client=client,
-        graph=graph,
+    if not entities:
+        raise IngestError("ingest_entities needs at least one entity")
+    change_set = ChangeSet(
+        entities=tuple(_to_entity(entity) for entity in entities),
+        relationships=tuple(
+            _to_relationship(relationship) for relationship in relationships or ()
+        ),
     )
+    service = ingest or current_ingest()
+    receipt = service.submit_blocking(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
 
 
 def ingest_documents(
     documents: list[dict[str, Any]],
     *,
-    source: str = _SOURCE,
-    domain: str = _DOMAIN,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """Write text records as ``:Document`` nodes (semantic-search fodder).
 
     Each doc: ``{"id":..., "text":..., "title"?:..., "source_uri"?:..., ...props}``.
-    The native primitive performs validation, enrichment stamping, and commit.
     """
-    return _native_ingest_documents(
-        documents,
-        source=source,
-        domain=domain,
-        client=client,
-        graph=graph,
+    change_set = ChangeSet(
+        documents=tuple(
+            Document(
+                id=doc["id"],
+                text=doc["text"],
+                title=doc.get("title"),
+                source_uri=doc.get("source_uri"),
+                properties={
+                    key: value
+                    for key, value in doc.items()
+                    if key not in {"id", "text", "title", "source_uri"}
+                },
+            )
+            for doc in documents
+        )
     )
+    service = ingest or current_ingest()
+    receipt = service.submit_blocking(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
 
 
 def _slug(value: str) -> str:
@@ -125,8 +177,7 @@ def _category_for(action: str) -> str:
 def ingest_actions(
     actions: list[str | dict[str, Any]],
     *,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int] | None:
     """Map Stirling PDF action names → ``:PdfTool`` nodes and ingest them.
 
@@ -153,7 +204,7 @@ def ingest_actions(
         )
     if not entities:
         return None
-    return ingest_entities(entities, None, client=client, graph=graph)
+    return ingest_entities(entities, None, ingest=ingest)
 
 
 def ingest_operation(
@@ -166,8 +217,7 @@ def ingest_operation(
     status: str = "success",
     size_bytes: int | None = None,
     mime_type: str = "application/pdf",
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int] | None:
     """Map one executed Stirling PDF operation → a ``:PdfOperation`` node + provenance.
 
@@ -225,6 +275,7 @@ def ingest_operation(
                 "source": output_asset_id,
                 "target": input_asset_id,
                 "relationship": "derivedFrom",
+                "source_node_type": "AssetOccurrence",
             }
         )
 
@@ -245,4 +296,4 @@ def ingest_operation(
             {"source": op_id, "target": wm_id, "relationship": "appliedWatermark"}
         )
 
-    return ingest_entities(entities, relationships, client=client, graph=graph)
+    return ingest_entities(entities, relationships, ingest=ingest)
