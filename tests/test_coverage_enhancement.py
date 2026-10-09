@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 import requests
-from agent_utilities.core.exceptions import (
+from agent_connector_sdk.exceptions import (
     AuthError,
     LoginRequiredError,
     MissingParameterError,

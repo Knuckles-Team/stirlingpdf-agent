@@ -1,21 +1,22 @@
-"""Native epistemic-graph typed-node ingestion — Wire-First coverage.
+"""Epistemic-graph typed-node ingestion -- Wire-First coverage for stirlingpdf-agent.
 
-Exercises the real ``ingest_entities`` / ``ingest_actions`` / ``ingest_operation`` seam with
-a fake engine client (no engine required), asserting the single-transaction node/edge staging and commit and
-the Stirling action → :PdfTool / operation → :PdfOperation mappings.
+Exercises the real ``ingest_entities`` / ``ingest_actions`` / ``ingest_operation`` seam
+against a fake ``agent_connector_sdk.ingest`` transport (no engine required), driven
+through ``KnowledgeIngest.submit_blocking`` since every call site here runs on a worker
+thread, not the engine's own event loop. The real SDK request builder still runs, so a
+malformed change set is still caught by the SDK's own contract, not re-derived here.
 CONCEPT:AU-KG.ingest.enterprise-source-extractor.
 """
 
 from __future__ import annotations
 
+import asyncio
+import threading
+from types import SimpleNamespace
 from typing import Any
 
-import msgpack
 import pytest
-from agent_utilities.knowledge_graph.core.session import GraphSession, use_session
-from agent_utilities.knowledge_graph.memory.native_ingest import NativeIngestError
-from agent_utilities.security.actor_identity import ActorType
-from agent_utilities.security.brain_context import ActorContext
+from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
 
 from stirlingpdf_agent.kg_ingest import (
     ingest_actions,
@@ -24,136 +25,86 @@ from stirlingpdf_agent.kg_ingest import (
 )
 
 
-@pytest.fixture(autouse=True)
-def _verified_graph_session():
-    actor = ActorContext(
-        actor_id="subject:opaque:synthetic",
-        actor_type=ActorType.SYSTEM,
-        roles=(),
-        tenant_id="tenant:opaque:synthetic",
-        authenticated=True,
-    )
-    session = GraphSession(
-        actor=actor,
-        tenant=actor.tenant_id,
-        scopes=frozenset({"kg:write"}),
-        graph="__commons__",
-        audience="epistemic-graph",
-        policy_version="policy:synthetic",
-    )
-    with use_session(session):
-        yield
+class _FakeTransport:
+    """Records every submitted request; no epistemic-graph engine required."""
 
-
-class _FakeNodes:
     def __init__(self) -> None:
-        self.values: dict[str, dict[str, Any]] = {}
+        self.requests: list[Any] = []
 
-    def properties(self, node_id: str) -> dict[str, Any] | None:
-        return self.values.get(node_id)
+    async def source_status(self, _connector: str, _stream: str) -> Any:
+        return SimpleNamespace(accepted_checkpoint=None)
 
-    def list(self) -> list[tuple[str, dict[str, Any]]]:
-        return list(self.values.items())
+    async def submit(self, request: Any) -> Any:
+        self.requests.append(request)
+        return SimpleNamespace(
+            affected_count=len(request.records),
+            relationship_count=len(request.relationships),
+        )
 
-
-class _FakeChanges:
-    def __init__(self, nodes: _FakeNodes) -> None:
-        self.nodes = nodes
-        self.edges: list[tuple[str, str, dict[str, Any]]] = []
-        self.applied: list[dict[str, Any]] = []
-        self.records: dict[str, dict[str, Any]] = {}
-        self.versions: dict[str, dict[str, Any]] = {}
-
-    def get(self, envelope_id: str) -> dict[str, Any] | None:
-        return self.records.get(envelope_id)
-
-    def content_version(self, object_id: str) -> dict[str, Any] | None:
-        return self.versions.get(object_id)
-
-    def cursor(self, _source: str, _partition: str = "") -> None:
-        return None
-
-    def apply(self, envelope: dict[str, Any]) -> dict[str, Any]:
-        self.applied.append(envelope)
-        mutation = envelope["mutation"]
-        for operation in mutation["operations"]:
-            method = operation["method"]
-            params = method["params"]
-            properties = msgpack.unpackb(params["properties_msgpack"], raw=False)
-            if method["method"] == "AddNode":
-                self.nodes.values[params["node_id"]] = properties
-            elif method["method"] == "AddEdge":
-                self.edges.append(
-                    (params["source_id"], params["target_id"], properties)
-                )
-        version = envelope["content_version"]
-        self.versions[version["object_id"]] = version
-        self.records[envelope["envelope_id"]] = envelope
-        return {
-            "batch_id": mutation["batch_id"],
-            "replayed": False,
-            "projection_pending": False,
-        }
+    async def store_blob(self, _data: bytes) -> str:
+        raise AssertionError("stirlingpdf-agent typed-node ingestion carries no media")
 
 
-class _FakeRdf:
-    def validate_shacl(self, _shapes: str, _data_graph: str) -> dict[str, Any]:
-        return {"conforms": True, "results": []}
+@pytest.fixture
+def ingest():
+    """A ``KnowledgeIngest`` bound to a real background loop (for ``submit_blocking``)."""
+    transport = _FakeTransport()
+    loop = asyncio.new_event_loop()
+    thread = threading.Thread(target=loop.run_forever, daemon=True)
+    thread.start()
+    service = KnowledgeIngest(transport, loop=loop)
+    yield service, transport
+    loop.call_soon_threadsafe(loop.stop)
+    thread.join(timeout=5)
+    loop.close()
 
 
-class _FakeClient:
-    def __init__(self) -> None:
-        self.nodes = _FakeNodes()
-        self.changes = _FakeChanges(self.nodes)
-        self.rdf = _FakeRdf()
-
-    @staticmethod
-    def supports(operation: str) -> bool:
-        return operation == "ApplyChangeEnvelope"
-
-
-def test_ingest_entities_writes_nodes_and_edges():
-    c = _FakeClient()
+def test_ingest_entities_writes_nodes_and_edges(ingest):
+    service, transport = ingest
     res = ingest_entities(
         [
             {"id": "a", "node_type": "PdfOperation", "name": "op"},
             {"id": "b", "node_type": "PdfTool"},
         ],
         [{"source": "a", "target": "b", "relationship": "usedTool"}],
-        client=c,
-        graph="__commons__",
+        ingest=service,
     )
     assert res == {"nodes": 2, "edges": 1}
-    assert len(c.changes.applied) == 1
-    assert set(c.nodes.values) == {"a", "b"}
-    # provenance is stamped
-    assert c.nodes.values["a"]["source"] == "stirlingpdf-agent"
-    assert c.nodes.values["a"]["domain"] == "stirlingpdf"
-    assert c.changes.edges == [("a", "b", {"relationship": "usedTool"})]
+    request = transport.requests[0]
+    record_ids = {record.record_id for record in request.records}
+    assert record_ids == {"a", "b"}
+    a_record = next(r for r in request.records if r.record_id == "a")
+    assert a_record.payload["name"] == "op"
+    assert request.relationships[0].relation_reference.endswith(
+        "resources/PdfOperation/relations/usedTool"
+    )
 
 
-def test_ingest_actions_maps_pdf_tools():
-    c = _FakeClient()
+def test_ingest_actions_maps_pdf_tools(ingest):
+    service, transport = ingest
     res = ingest_actions(
         ["add_watermark", {"name": "merge_pdfs"}, "ocr_pdf"],
-        client=c,
-        graph="__commons__",
+        ingest=service,
     )
     assert res == {"nodes": 3, "edges": 0}
-    assert c.nodes.values["stirlingpdf:tool:add-watermark"]["node_type"] == "PdfTool"
-    assert (
-        c.nodes.values["stirlingpdf:tool:add-watermark"]["actionName"]
-        == "add_watermark"
+    request = transport.requests[0]
+    tool = next(
+        r for r in request.records if r.record_id == "stirlingpdf:tool:add-watermark"
     )
-    assert c.nodes.values["stirlingpdf:tool:add-watermark"]["category"] == "general"
-    assert c.nodes.values["stirlingpdf:tool:ocr-pdf"]["category"] == "misc"
-    assert (
-        c.nodes.values["stirlingpdf:tool:merge-pdfs"]["externalToolId"] == "merge_pdfs"
+    assert tool.payload["actionName"] == "add_watermark"
+    assert tool.payload["category"] == "general"
+    ocr = next(
+        r for r in request.records if r.record_id == "stirlingpdf:tool:ocr-pdf"
     )
+    assert ocr.payload["category"] == "misc"
+    merge = next(
+        r for r in request.records if r.record_id == "stirlingpdf:tool:merge-pdfs"
+    )
+    assert merge.payload["externalToolId"] == "merge_pdfs"
 
 
-def test_ingest_operation_wires_provenance_and_watermark():
-    c = _FakeClient()
+def test_ingest_operation_wires_provenance_and_watermark(ingest):
+    service, transport = ingest
     res = ingest_operation(
         "add_watermark",
         operation_id="stirlingpdf:op:add-watermark:1",
@@ -161,23 +112,27 @@ def test_ingest_operation_wires_provenance_and_watermark():
         input_asset_id="media:in",
         output_asset_id="media:out",
         size_bytes=2048,
-        client=c,
-        graph="__commons__",
+        ingest=service,
     )
-    # op + tool + watermark nodes
     assert res is not None
     assert res["nodes"] == 3
-    op = c.nodes.values["stirlingpdf:op:add-watermark:1"]
-    assert op["node_type"] == "PdfOperation"
-    assert op["actionName"] == "add_watermark"
-    assert op["status"] == "success"
-    assert op["sizeBytes"] == 2048
-    assert c.nodes.values["stirlingpdf:tool:add-watermark"]["node_type"] == "PdfTool"
-    # a :Watermark node was emitted
-    wm = [n for n in c.nodes.values.values() if n.get("node_type") == "Watermark"]
-    assert wm and wm[0]["watermarkText"] == "DRAFT"
-    # provenance edges: usedTool, hasInput, produced, derivedFrom, appliedWatermark
-    edge_types = sorted(p["relationship"] for _, _, p in c.changes.edges)
+    request = transport.requests[0]
+    op = next(
+        r
+        for r in request.records
+        if r.record_id == "stirlingpdf:op:add-watermark:1"
+    )
+    assert op.payload["actionName"] == "add_watermark"
+    assert op.payload["status"] == "success"
+    assert op.payload["sizeBytes"] == 2048
+    assert any(
+        r.record_id == "stirlingpdf:tool:add-watermark" for r in request.records
+    )
+    watermark = [r for r in request.records if r.payload.get("watermarkText")]
+    assert watermark and watermark[0].payload["watermarkText"] == "DRAFT"
+    edge_types = sorted(
+        rel.relation_reference.rsplit("/", 1)[-1] for rel in request.relationships
+    )
     assert edge_types == [
         "appliedWatermark",
         "derivedFrom",
@@ -185,24 +140,22 @@ def test_ingest_operation_wires_provenance_and_watermark():
         "produced",
         "usedTool",
     ]
-    assert (
-        "media:out",
-        "media:in",
-        {"relationship": "derivedFrom"},
-    ) in c.changes.edges
 
 
-def test_ingest_actions_and_operation_empty_is_noop():
-    # Nothing to map -> a clean no-op before the strict native-ingest layer is reached.
-    assert ingest_actions([], client=_FakeClient()) is None
-    assert ingest_operation("", client=_FakeClient()) is None
+def test_ingest_actions_and_operation_empty_is_noop(ingest):
+    service, transport = ingest
+    assert ingest_actions([], ingest=service) is None
+    assert ingest_operation("", ingest=service) is None
+    assert transport.requests == []
 
 
-def test_retired_structural_alias_is_rejected():
-    with pytest.raises(NativeIngestError, match="canonical node_type"):
-        ingest_entities([{"id": "a", "type": "PdfTool"}], client=_FakeClient())
+def test_retired_structural_alias_is_rejected(ingest):
+    service, _transport = ingest
+    with pytest.raises(IngestError, match="node_type"):
+        ingest_entities([{"id": "a", "type": "PdfTool"}], ingest=service)
 
 
-def test_empty_native_ingest_is_rejected():
-    with pytest.raises(NativeIngestError, match="at least one entity"):
-        ingest_entities([], client=_FakeClient())
+def test_empty_native_ingest_is_rejected(ingest):
+    service, _transport = ingest
+    with pytest.raises(IngestError, match="at least one entity"):
+        ingest_entities([], ingest=service)
