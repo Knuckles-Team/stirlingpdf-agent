@@ -16,7 +16,7 @@
 ## Functional Requirements
 
 - **FR-001**: Detected 1 agent skill(s) — will grade in CE-026
-- **FR-002**: Minor update: agent-utilities 0.2.40 (installed) -> 0.16.0
+- **FR-002**: Minor update: agent-connector-sdk 0.2.40 (installed) -> 0.16.0
 - **FR-003**: Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
 - **FR-004**: Test suite lacks intent diversity (only one type)
 - **FR-005**: 13 potential doc-test drift items
@@ -38,7 +38,7 @@
 - **FR-021**: 3 tests have no assertions
 - **FR-022**: Transport-security variables are documented in README.md and `.env.example`
 - **FR-023**: Runtime TLS profile references are documented in `.env.example`
-- **FR-024**: Analysis error: No module named 'agent_utilities.knowledge_graph'
+- **FR-024**: Analysis error: No module named 'agent_connector_sdk.knowledge_graph'
 
 ## Success Criteria
 

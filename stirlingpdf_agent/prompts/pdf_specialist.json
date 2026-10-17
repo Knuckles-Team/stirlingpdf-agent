@@ -4,7 +4,7 @@
   "schema_version": "1.0",
   "prompt_version": "0.1.0",
   "source": "stirlingpdf-agent",
-  "extends": "agent-utilities:base",
+  "extends": "agent-connector-sdk:base",
   "compose": "append",
   "description": "Stirling PDF document-processing specialist: watermarking, transforms, conversion, and KG provenance over the stirlingpdf-agent MCP server.",
   "metadata": {

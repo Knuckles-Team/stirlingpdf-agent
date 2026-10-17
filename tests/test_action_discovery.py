@@ -1,6 +1,6 @@
 """Action-discovery behaviour for the pdf_action tool.
 
-Verifies the shared agent-utilities action-dispatch helper is wired in:
+Verifies the shared agent-connector-sdk action-dispatch helper is wired in:
 ``list_actions`` returns the available action names and an unknown action raises
 a rich ValueError pointing at ``list_actions``.
 """

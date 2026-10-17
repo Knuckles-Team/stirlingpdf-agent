@@ -1,6 +1,6 @@
 # stirlingpdf-agent
 
-Stirling PDF **MCP Server + A2A Agent** for the agent-utilities ecosystem — a typed,
+Stirling PDF **MCP Server + A2A Agent** for the Graph OS ecosystem — a typed,
 deterministic toolkit for performing PDF operations through a Stirling PDF service.
 
 !!! info "Official documentation"
