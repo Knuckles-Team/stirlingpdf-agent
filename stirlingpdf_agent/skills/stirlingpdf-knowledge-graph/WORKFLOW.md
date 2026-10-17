@@ -19,7 +19,7 @@ tool for discovering + ingesting the instance's tool catalog, and the model it w
 ## When NOT to use
 - Actually watermarking or transforming a PDF → `stirlingpdf-watermarking` /
   `stirlingpdf-document-operations` (those auto-ingest; this skill is the KG seam).
-- Generic graph queries unrelated to Stirling → the graph-os query tools.
+- Generic graph queries unrelated to Stirling → the arbora query tools.
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`stirlingpdf-agent`** MCP server, plus a

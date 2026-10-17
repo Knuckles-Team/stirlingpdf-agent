@@ -1,5 +1,5 @@
 site_name: "stirlingpdf-agent"
-site_description: "Stirling PDF MCP Server + A2A Agent — typed, deterministic PDF operations for the Graph OS ecosystem."
+site_description: "Stirling PDF MCP Server + A2A Agent — typed, deterministic PDF operations for the Arbora ecosystem."
 site_url: "https://knuckles-team.github.io/stirlingpdf-agent/"
 repo_name: "Knuckles-Team/stirlingpdf-agent"
 repo_url: "https://github.com/Knuckles-Team/stirlingpdf-agent"
