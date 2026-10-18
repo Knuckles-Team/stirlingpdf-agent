@@ -35,6 +35,24 @@ class WatermarkClient(BaseApiClient):
             print(f"KG ingest skipped: {type(e).__name__}", file=sys.stderr)
 
     @require_auth
+    def get_status(self) -> Response:
+        """
+        Read the Stirling PDF server's status and version (GET /api/v1/info/status).
+
+        :return: Response whose data is the server's status document.
+        :rtype: Response
+        """
+        try:
+            response = self._session.get(url=f"{self.url}/info/status", headers=self.headers)
+            response.raise_for_status()
+            return Response(response=response, data=response.json())
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code in [401, 403]:
+                exc = AuthError if e.response.status_code == 401 else UnauthorizedError
+                raise exc from e
+            raise e from e
+
+    @require_auth
     def add_watermark(
         self,
         filepath: str,
