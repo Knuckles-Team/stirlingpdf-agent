@@ -7,7 +7,6 @@
         "stirlingpdf-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "intent",
         "PDFTOOL": "True"
       }
     }

@@ -35,18 +35,55 @@ class WatermarkClient(BaseApiClient):
             print(f"KG ingest skipped: {type(e).__name__}", file=sys.stderr)
 
     @require_auth
-    def add_watermark(self, filepath: str, **kwargs) -> Response:
+    def add_watermark(
+        self,
+        filepath: str,
+        watermarkType: str | None = None,
+        watermarkText: str | None = None,
+        alphabet: str | None = None,
+        fontSize: str | None = None,
+        rotation: str | None = None,
+        opacity: str | None = None,
+        widthSpacer: str | None = None,
+        heightSpacer: str | None = None,
+    ) -> Response:
         """
         Add a watermark to a PDF file.
 
         :param filepath: Path to the input PDF file.
         :type filepath: str
+        :param watermarkType: Type of watermark (e.g. 'text').
+        :param watermarkText: The text of the watermark.
+        :param alphabet: Alphabet type (default roman).
+        :param fontSize: Font size (default 30).
+        :param rotation: Rotation angle (default 0).
+        :param opacity: Opacity from 0.0 to 1.0 (default 0.5).
+        :param widthSpacer: Width spacing (default 50).
+        :param heightSpacer: Height spacing (default 50).
 
         :return: Response containing the raw PDF bytes.
         :rtype: Response
         """
         try:
-            model = AddWatermarkModel(**kwargs)
+            optional = {
+                "alphabet": alphabet,
+                "fontSize": fontSize,
+                "rotation": rotation,
+                "opacity": opacity,
+                "widthSpacer": widthSpacer,
+                "heightSpacer": heightSpacer,
+            }
+            model = AddWatermarkModel(
+                **{
+                    k: v
+                    for k, v in {
+                        "watermarkType": watermarkType,
+                        "watermarkText": watermarkText,
+                        **optional,
+                    }.items()
+                    if v is not None
+                },
+            )
 
             with open(filepath, "rb") as f:
                 files = {"fileInput": (filepath, f, "application/pdf")}
@@ -59,7 +96,7 @@ class WatermarkClient(BaseApiClient):
 
             response.raise_for_status()
 
-            self._ingest_watermark(filepath, response.content, kwargs)
+            self._ingest_watermark(filepath, response.content, model.api_parameters)
 
             return Response(response=response, data=response.content)
 
