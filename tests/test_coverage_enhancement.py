@@ -1,10 +1,9 @@
-import base64
 import builtins
 import importlib
 import os
 import runpy
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
@@ -23,7 +22,7 @@ from stirlingpdf_agent.mcp_server import (
     get_mcp_instance,
     mcp_server,
 )
-from stirlingpdf_agent.stirlingpdf_agent_models import AddWatermarkModel, Response
+from stirlingpdf_agent.stirlingpdf_agent_models import AddWatermarkModel
 
 # ==========================================
 # 1. Package __init__.py Tests
@@ -271,121 +270,16 @@ async def test_mcp_prompt():
     )
 
 
-@pytest.mark.asyncio
-async def test_pdf_action_tool_success():
-    mcp, _, _, _ = get_mcp_instance()
-    tools = await mcp.list_tools()
-    pdf_action_tool = next((t for t in tools if t.name == "pdf_action"), None)
-    assert pdf_action_tool is not None
-
-    mock_client = MagicMock()
-    mock_response = requests.Response()
-    mock_response.status_code = 200
-    mock_response._content = b"pdf output bytes"
-
-    # We will simulate the client's method (e.g. add_watermark) returning a Response model wrapper
-    model_response = Response(response=mock_response, data=b"pdf output bytes")
-    mock_client.add_watermark = MagicMock(return_value=model_response)
-
-    ctx = MagicMock()
-    ctx.info = AsyncMock()
-
-    # Call the tool function
-    res = await pdf_action_tool.fn(
-        action="add_watermark",
-        params_json='{"filepath": "input.pdf", "watermarkType": "text", "watermarkText": "DRAFT"}',
-        client=mock_client,
-        ctx=ctx,
-    )
-
-    assert "data" in res
-    expected_b64 = base64.b64encode(b"pdf output bytes").decode("utf-8")
-    assert res["data"] == expected_b64
-    ctx.info.assert_called_once()
 
 
-@pytest.mark.asyncio
-async def test_pdf_action_tool_success_model_dump():
-    mcp, _, _, _ = get_mcp_instance()
-    tools = await mcp.list_tools()
-    pdf_action_tool = next((t for t in tools if t.name == "pdf_action"), None)
-    assert pdf_action_tool is not None
-
-    mock_client = MagicMock()
-
-    # Create a custom class that implements model_dump instead of dict
-    class MockModelDumpResponse:
-        def model_dump(self):
-            return {"data": b"pdf bytes via dump", "response": "ignored"}
-
-    mock_client.add_watermark = MagicMock(return_value=MockModelDumpResponse())
-    ctx = MagicMock()
-    ctx.info = AsyncMock()
-
-    res = await pdf_action_tool.fn(
-        action="add_watermark",
-        params_json='{"filepath": "input.pdf", "watermarkType": "text", "watermarkText": "DRAFT"}',
-        client=mock_client,
-        ctx=ctx,
-    )
-
-    assert "data" in res
-    assert "response" not in res
-    expected_b64 = base64.b64encode(b"pdf bytes via dump").decode("utf-8")
-    assert res["data"] == expected_b64
 
 
-@pytest.mark.asyncio
-async def test_pdf_action_tool_success_other():
-    mcp, _, _, _ = get_mcp_instance()
-    tools = await mcp.list_tools()
-    pdf_action_tool = next((t for t in tools if t.name == "pdf_action"), None)
-    assert pdf_action_tool is not None
-
-    mock_client = MagicMock()
-    # If the method returns a simple string/dictionary rather than a Pydantic model
-    mock_client.add_watermark = MagicMock(return_value="Plain String Result")
-    ctx = MagicMock()
-    ctx.info = AsyncMock()
-
-    res = await pdf_action_tool.fn(
-        action="add_watermark",
-        params_json='{"filepath": "input.pdf", "watermarkType": "text", "watermarkText": "DRAFT"}',
-        client=mock_client,
-        ctx=ctx,
-    )
-    assert res == {"status": "success", "result": "Plain String Result"}
 
 
-@pytest.mark.asyncio
-async def test_pdf_action_tool_errors():
-    mcp, _, _, _ = get_mcp_instance()
-    tools = await mcp.list_tools()
-    pdf_action_tool = next((t for t in tools if t.name == "pdf_action"), None)
-    assert pdf_action_tool is not None
 
-    mock_client = MagicMock()
 
-    # Case 1: Invalid JSON
-    res = await pdf_action_tool.fn(
-        action="add_watermark",
-        params_json="{invalid json}",
-        client=mock_client,
-        ctx=None,
-    )
-    assert "error" in res
-    assert "params_json" in res["error"]
-    assert "must be valid JSON" in res["error"]
 
-    # Case 2: Unknown Action
-    mock_client.some_unknown_action = None
-    with pytest.raises(ValueError, match="Unknown action 'some_unknown_action'"):
-        await pdf_action_tool.fn(
-            action="some_unknown_action",
-            params_json="{}",
-            client=mock_client,
-            ctx=None,
-        )
+
 
 
 def test_mcp_server_run():
@@ -453,3 +347,17 @@ def test_mcp_server_main():
 
 
 
+
+
+@pytest.mark.asyncio
+async def test_mcp_serves_typed_per_operation_tools():
+    from stirlingpdf_agent.mcp_server import get_mcp_instance
+
+    mcp, _, _, _ = get_mcp_instance()
+    tools = {tool.name: tool for tool in await mcp.list_tools()}
+    assert "pdf_action" not in tools
+    watermark = tools["stirlingpdf_add_watermark"]
+    properties = watermark.parameters["properties"]
+    assert {"filepath", "watermarkText", "opacity"} <= set(properties)
+    assert "params_json" not in properties
+    assert watermark.annotations is not None
