@@ -10,7 +10,7 @@ applies to a PDF toolbox:
 * **documents** — text worth semantic search (e.g. an operation summary, extracted text)
   becomes ``:Document`` nodes carrying the text + ``source_uri``, via :func:`ingest_documents`.
 * **blobs** — the raw PDF bytes (input and output artifacts) are stored as ``:Blob`` +
-  ``:AssetOccurrence`` via :func:`stirlingpdf_agent.kg_media.ingest_pdf_bytes`.
+  ``:AssetOccurrence`` via the SDK ingest path.
 
 This module is a thin mapper over ``agent_connector_sdk.ingest`` -- the generated
 ``SourceIngest`` client, not a local ingestion helper. Every call site here runs on a
@@ -61,7 +61,7 @@ def _to_relationship(record: dict[str, Any]) -> Relationship:
     The SDK's request builder needs the source endpoint's ``node_type`` either
     from the change set's own entities or an explicit ``EntityRef`` -- never
     required for the target. ``source_node_type`` carries that for a source
-    (e.g. a media asset id from ``kg_media``) that is not itself part of this
+    (e.g. a media asset id) that is not itself part of this
     change set.
     """
     source_node_type = record.get("source_node_type")
@@ -226,7 +226,7 @@ def ingest_operation(
     are present — records the ``:derivedFrom`` provenance edge from output back to input.
     For add-watermark operations, also emits a ``:Watermark`` node (``:appliedWatermark``).
     ``input_asset_id`` / ``output_asset_id`` are the ``:AssetOccurrence`` ids returned by
-    :func:`stirlingpdf_agent.kg_media.ingest_pdf_bytes`.
+    the SDK ingest path.
     """
     if not action:
         return None

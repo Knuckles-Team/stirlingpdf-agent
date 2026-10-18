@@ -18,27 +18,17 @@ class WatermarkClient(BaseApiClient):
     def _ingest_watermark(filepath: str, output_bytes: bytes, params: dict) -> None:
         """Best-effort native KG ingestion of a completed add-watermark operation.
 
-        Stores the input + output PDFs as blobs (:AssetOccurrence) and records a :PdfOperation
+        Records a :PdfOperation
         with :usedTool / :produced / :derivedFrom / :appliedWatermark provenance. Fully
-        guarded: no-ops when the epistemic-graph engine or agent-utilities KG stack is
+        guarded: no-ops when the epistemic-graph engine or agent-connector-sdk KG stack is
         absent, so the watermark call never fails because of ingestion.
         """
         try:
             from stirlingpdf_agent.kg_ingest import ingest_operation
-            from stirlingpdf_agent.kg_media import ingest_pdf_bytes, ingest_pdf_file
 
-            in_asset = ingest_pdf_file(filepath, action="add_watermark", role="input")
-            out_asset = ingest_pdf_bytes(
-                output_bytes,
-                name="watermarked.pdf",
-                action="add_watermark",
-                role="output",
-            )
             ingest_operation(
                 "add_watermark",
                 params=params,
-                input_asset_id=(in_asset or {}).get("asset_id"),
-                output_asset_id=(out_asset or {}).get("asset_id"),
                 size_bytes=len(output_bytes) if output_bytes else None,
             )
         except Exception as e:  # noqa: BLE001 — ingestion is strictly best-effort

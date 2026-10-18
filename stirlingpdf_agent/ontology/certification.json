@@ -1,5 +1,5 @@
 {
-  "api_version": "graphos.io/v1",
+  "api_version": "arbora.io/v1",
   "artifacts": {
     "connector_manifest.yml": "a7ba012862b53337a9afd293de99ea0e2c40799184c980b8533284ec1296c7dc",
     "stirlingpdf_agent/connectors/mcp_source_presets.json": "1058a7ee1ec993676d03a03be62646916319af8af494fd33203bc183f5414496",
@@ -18,7 +18,7 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.5.0,<3",
+    "agent_connector_sdk": ">=2.5.0,<3",
     "bundle_schema": "2",
     "epistemic_graph": ">=2.27.0,<3"
   },

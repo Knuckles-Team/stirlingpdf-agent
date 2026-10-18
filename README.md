@@ -15,7 +15,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/stirlingpdf-agent)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/stirlingpdf-agent)
 
-*Version: 2.1.0*
+*Version: 2.2.0*
 
 > **Documentation** — Installation, deployment, usage across the MCP, API, and CLI
 > interfaces, and guidance for provisioning the Stirling PDF service are maintained in
@@ -62,8 +62,8 @@ Pick the extra that matches what the operator want to run:
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `stirlingpdf-agent[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
-| `stirlingpdf-agent[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
+| `stirlingpdf-agent[mcp]` | Connector-focused MCP server (`agent-connector-sdk[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
+| `stirlingpdf-agent[agent]` | Agent runtime (`agent-connector-sdk[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
 | `stirlingpdf-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
@@ -84,15 +84,15 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
 | `knucklessg1/stirlingpdf-agent:mcp` | `--target mcp` | `stirlingpdf-agent[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `stirlingpdf-mcp` |
-| `knucklessg1/stirlingpdf-agent:2.1.0` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `stirlingpdf-agent` |
+| `knucklessg1/stirlingpdf-agent:2.2.0` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `stirlingpdf-agent` |
 
 ```bash
 docker build --target mcp   -t knucklessg1/stirlingpdf-agent:mcp    docker/   # connector-focused MCP server
-docker build --target agent -t knucklessg1/stirlingpdf-agent:2.1.0 docker/   # agent runtime
+docker build --target agent -t knucklessg1/stirlingpdf-agent:2.2.0 docker/   # agent runtime
 ```
 
 `docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
-agent (`:2.1.0`) with a co-located `:mcp` sidecar. Both compose files require the deployed
+agent (`:2.2.0`) with a co-located `:mcp` sidecar. Both compose files require the deployed
 image to be pinned by digest via `STIRLINGPDF_AGENT_MCP_IMAGE` / `STIRLINGPDF_AGENT_AGENT_IMAGE`
 (e.g. `knucklessg1/stirlingpdf-agent@sha256:<digest>`) — least-privilege, read-only,
 non-root (`10001:10001`) containers with no floating tag in production.
@@ -198,7 +198,7 @@ When query strings or parameters are provided, an LLM-free **Knowledge Graph res
 <!-- MCP-CONFIG-EXAMPLES:START -->
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `stirlingpdf-agent[mcp]` to add
-> FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
+> FastMCP / FastAPI through `agent-connector-sdk[mcp]`; the required Agent Utilities core
 > still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
 > enables model orchestration.
 
@@ -223,7 +223,7 @@ When query strings or parameters are provided, an LLM-free **Knowledge Graph res
 }
 ```
 
-Runtime references require an alias-aware launcher such as GraphOS. Other
+Runtime references require an alias-aware launcher such as Arbora. Other
 launchers must omit those entries and inject the resolved values through their
 own runtime secret boundary.
 
@@ -399,7 +399,7 @@ services:
 | `TLS_PROFILE` | `private-pki` | TLS verification is mandatory. Select a named runtime profile from AgentConfig. |
 | `TLS_PROFILES_REF` | `secret://runtime/tls-profiles` |  |
 
-#### Inherited agent-utilities variables (apply to every connector)
+#### Inherited agent-connector-sdk variables (apply to every connector)
 
 | Variable | Example | Description |
 |----------|---------|-------------|
@@ -420,11 +420,11 @@ services:
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_17 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_17 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-connector-sdk set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
  Reference
 
-Stirling PDF Agent use both package-specific environment configurations and standard security settings inherited from the `agent-utilities` system core.
+Stirling PDF Agent use both package-specific environment configurations and standard security settings inherited from the `agent-connector-sdk` system core.
 
 ### Stirling PDF Agent Configs
 - **`PDFTOOL`** (bool, default: `True`): Toggles the dynamic PDF action tool registration.
@@ -433,7 +433,7 @@ Stirling PDF Agent use both package-specific environment configurations and stan
 - **`TLS_PROFILE`** (str): Selects a named `AgentConfig` transport-security profile. Certificate and hostname verification are mandatory.
 - **`TLS_PROFILES_REF`** (secret reference): Resolves the runtime-only TLS profile catalog.
 
-### Inherited agent-utilities Configs
+### Inherited agent-connector-sdk Configs
 - **`TRANSPORT`** (str, default: `stdio`): Server transport type. Options: `stdio`, `sse`, `streamable-http`.
 - **`HOST`** (str, default: `0.0.0.0`): Network host interface to bind the HTTP server.
 - **`PORT`** (int, default: `8000`): Port to listen on.
@@ -453,7 +453,7 @@ Stirling PDF Agent use both package-specific environment configurations and stan
 
 ## Security & Governance
 
-Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/Knuckles-Team/agent-utilities) core, standard security parameters are fully supported:
+Built directly upon the enterprise-ready [`agent-connector-sdk`](https://github.com/Knuckles-Team/agent-connector-sdk) core, standard security parameters are fully supported:
 
 - **Eunomia Policies:** Fine-grained, policy-driven tool authorization. Supports `none`, local `embedded` (`mcp_policies.json`), or centralized `remote` modes.
 - **OIDC Token Delegation:** Compliant with RFC 8693 token exchange for flowing authenticating user credentials from Web UI / ACP → Agent → MCP.
@@ -516,15 +516,15 @@ Secrets are read-existing + seeded via `vault_sync` — you are only prompted fo
 
 <!-- END agent-os-genesis-deploy -->
 
-<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
+<!-- BEGIN agent-connector-sdk-deployment (generated; do not edit between markers) -->
 
-## Deploy with `agent-utilities-deployment`
+## Deploy with `agent-connector-sdk-deployment`
 
-Provision this package with the consolidated **`agent-utilities-deployment`**
+Provision this package with the consolidated **`agent-connector-sdk-deployment`**
 workflow. It selects an installed-package, editable-source, or immutable-container
 path; records only runtime secret and TLS-profile references in `AgentConfig`; and
 runs doctor, registration, policy, observability, and rollback gates. Ask your agent
-to **"deploy `stirlingpdf-agent` with agent-utilities-deployment"**.
+to **"deploy `stirlingpdf-agent` with agent-connector-sdk-deployment"**.
 
 | Install mode | Command |
 |------|---------|
@@ -536,7 +536,7 @@ The repository embeds no deployment profile, credential value, certificate path,
 environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
 configured secret provider.
 
-<!-- END agent-utilities-deployment -->
+<!-- END agent-connector-sdk-deployment -->
 
 <!-- GOVERNED-CAPABILITY:START -->
 ## Governed capability contract
@@ -551,5 +551,5 @@ historical per-task skill wrappers.
 Runtime endpoints, credentials, certificate trust, tenant identity, retention,
 and observability policy are deployment inputs and are never packaged values.
 See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
-network transport, connector ingestion, GraphOS delegation, or trace export.
+network transport, connector ingestion, Arbora delegation, or trace export.
 <!-- GOVERNED-CAPABILITY:END -->
