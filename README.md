@@ -15,7 +15,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/stirlingpdf-agent)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/stirlingpdf-agent)
 
-*Version: 2.2.0*
+*Version: 2.2.1*
 
 > **Documentation** — Installation, deployment, usage across the MCP, API, and CLI
 > interfaces, and guidance for provisioning the Stirling PDF service are maintained in
@@ -84,15 +84,15 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
 | `knucklessg1/stirlingpdf-agent:mcp` | `--target mcp` | `stirlingpdf-agent[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `stirlingpdf-mcp` |
-| `knucklessg1/stirlingpdf-agent:2.2.0` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `stirlingpdf-agent` |
+| `knucklessg1/stirlingpdf-agent:2.2.1` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `stirlingpdf-agent` |
 
 ```bash
 docker build --target mcp   -t knucklessg1/stirlingpdf-agent:mcp    docker/   # connector-focused MCP server
-docker build --target agent -t knucklessg1/stirlingpdf-agent:2.2.0 docker/   # agent runtime
+docker build --target agent -t knucklessg1/stirlingpdf-agent:2.2.1 docker/   # agent runtime
 ```
 
 `docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
-agent (`:2.2.0`) with a co-located `:mcp` sidecar. Both compose files require the deployed
+agent (`:2.2.1`) with a co-located `:mcp` sidecar. Both compose files require the deployed
 image to be pinned by digest via `STIRLINGPDF_AGENT_MCP_IMAGE` / `STIRLINGPDF_AGENT_AGENT_IMAGE`
 (e.g. `knucklessg1/stirlingpdf-agent@sha256:<digest>`) — least-privilege, read-only,
 non-root (`10001:10001`) containers with no floating tag in production.
@@ -129,7 +129,7 @@ response = client.add_watermark(
     watermarkText="CONFIDENTIAL",
     percentOfPage=30,
     opacity=0.5,
-    rotation=45
+    rotation=45,
 )
 
 # Save output PDF bytes
