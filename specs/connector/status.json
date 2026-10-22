@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "spec_id": "CONN-STIRLINGPDF-AGENT",
+  "owner_repo": "stirlingpdf-agent",
+  "delivery_state": "SPECIFIED",
+  "requirement_ids": [
+    "CONN-STIRLINGPDF-AGENT-R001"
+  ],
+  "requirements": [
+    {
+      "id": "CONN-STIRLINGPDF-AGENT-R001",
+      "title": "Read-only status operation",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    }
+  ]
+}
