@@ -9,7 +9,7 @@ A fleet operator must check the PDF server without a change to any document. The
 ## Requirements and acceptance
 
 - FR-001: The connector must expose `stirlingpdf_get_status`. The tool must call `GET /api/v1/info/status` in `stirlingpdf_agent/api/api_client_watermark.py`. The tool must carry the read-only annotation.
-- SC-001: the tool is listed with the read-only annotation, calls the status route with the API key header, and maps a 401 response to an authentication error.
+- SC-001: the tool is listed with the read-only annotation, calls the status route with the API key header, maps a 401 response to an authentication error, and succeeds with no API key configured.
 
 ## Why a new spec
 
