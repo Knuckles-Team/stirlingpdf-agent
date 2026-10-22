@@ -2,17 +2,34 @@
   "schema_version": 2,
   "spec_id": "CONN-STIRLINGPDF-AGENT",
   "owner_repo": "stirlingpdf-agent",
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "VERIFIED",
   "requirement_ids": [
-    "CONN-STIRLINGPDF-AGENT-R001"
+    "CONN-STIRLINGPDF-AGENT-R001",
+    "CONN-STIRLINGPDF-AGENT-R002"
   ],
   "requirements": [
     {
       "id": "CONN-STIRLINGPDF-AGENT-R001",
       "title": "Read-only status operation",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "4796df8c587f",
+        "d7c5e337ff9c"
+      ],
+      "verified_by": [
+        "tests/test_read_only_status.py:12"
+      ]
+    },
+    {
+      "id": "CONN-STIRLINGPDF-AGENT-R002",
+      "title": "Fleet name",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "276a96097bc3"
+      ],
+      "verified_by": [
+        "tests/test_fleet_name.py:35"
+      ]
     }
   ]
 }
