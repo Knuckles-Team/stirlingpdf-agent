@@ -52,3 +52,10 @@ def test_status_maps_401_to_an_authentication_error():
     client._session.get = MagicMock(return_value=_response(401, {}))
     with pytest.raises(AuthError):
         client.get_status()
+
+
+def test_status_works_without_an_api_key():
+    client = StirlingPdfApi(base_url="http://pdf.test", token="")
+    client._session.get = MagicMock(return_value=_response(200, {"status": "UP"}))
+    assert client.get_status().data == {"status": "UP"}
+    assert "X-API-KEY" not in client._session.get.call_args.kwargs["headers"]

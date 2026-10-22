@@ -4,7 +4,7 @@ Governing spec: [spec.md](spec.md).
 
 | Test ID | Requirement | Level | Setup and input | Expected observation | Evidence |
 |---|---|---|---|---|---|
-| T-001 | FR-001 | Unit | Mocked HTTP | the tool is listed with the read-only annotation, calls the status route with the API key header, and maps a 401 response to an authentication error. | `tests/test_read_only_status.py` |
+| T-001 | FR-001 | Unit | Mocked HTTP | the tool is listed with the read-only annotation, calls the status route with the API key header, maps a 401 response to an authentication error, and succeeds with no API key configured. | `tests/test_read_only_status.py` |
 
 ## Negative and boundary cases
 

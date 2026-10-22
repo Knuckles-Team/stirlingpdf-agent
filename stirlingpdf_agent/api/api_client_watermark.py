@@ -34,16 +34,20 @@ class WatermarkClient(BaseApiClient):
         except Exception as e:  # noqa: BLE001 — ingestion is strictly best-effort
             print(f"KG ingest skipped: {type(e).__name__}", file=sys.stderr)
 
-    @require_auth
     def get_status(self) -> Response:
         """
         Read the Stirling PDF server's status and version (GET /api/v1/info/status).
+
+        The route needs no API key on a server without security; a configured
+        key is still sent, and a 401/403 maps to the auth errors.
 
         :return: Response whose data is the server's status document.
         :rtype: Response
         """
         try:
-            response = self._session.get(url=f"{self.url}/info/status", headers=self.headers)
+            response = self._session.get(
+                url=f"{self.url}/info/status", headers=self.headers
+            )
             response.raise_for_status()
             return Response(response=response, data=response.json())
         except requests.exceptions.HTTPError as e:
