@@ -1,4 +1,4 @@
-connector: stirlingpdf-agent
+connector: stirlingpdf-mcp
 ontology_source: stirlingpdf
 schema_version: '1'
 resources:

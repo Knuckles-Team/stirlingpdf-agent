@@ -42,7 +42,7 @@ from agent_connector_sdk.ingest import (
 
 logger = logging.getLogger("stirlingpdf_agent.kg")
 
-_BINDING = IngestBinding(connector="stirlingpdf-agent", stream="stirlingpdf")
+_BINDING = IngestBinding(connector="stirlingpdf-mcp", stream="stirlingpdf")
 
 
 def _to_entity(record: dict[str, Any]) -> Entity:
@@ -50,7 +50,9 @@ def _to_entity(record: dict[str, Any]) -> Entity:
         id=record.get("id"),
         node_type=record.get("node_type"),
         properties={
-            key: value for key, value in record.items() if key not in ("id", "node_type")
+            key: value
+            for key, value in record.items()
+            if key not in ("id", "node_type")
         },
     )
 

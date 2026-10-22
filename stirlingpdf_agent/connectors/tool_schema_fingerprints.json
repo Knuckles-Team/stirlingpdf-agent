@@ -1,6 +1,6 @@
 {
   "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
-  "connector": "stirlingpdf-agent",
+  "connector": "stirlingpdf-mcp",
   "schema_version": "1",
   "tools": {
     "stirlingpdf_ingest_tools": "210bf9422d53abc2cd61ba48ea017c268ce9191bfb65085a242cbd2416bd80e2"
