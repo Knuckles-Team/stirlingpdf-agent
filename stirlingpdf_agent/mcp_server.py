@@ -18,7 +18,7 @@ from stirlingpdf_agent.api_client import StirlingPdfApi
 from stirlingpdf_agent.auth import get_client
 from stirlingpdf_agent.mcp import register_pdf_tools
 
-__version__ = "2.4.2"
+__version__ = "2.4.3"
 
 logger = get_logger(name="StirlingPdfMCP")
 logger.setLevel(logging.INFO)
