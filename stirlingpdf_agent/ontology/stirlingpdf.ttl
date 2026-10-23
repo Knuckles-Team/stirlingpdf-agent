@@ -129,5 +129,4 @@
     pipelines and watermarks, with the document-provenance links that tie an output PDF
     back to the input it was derived from. Raw bytes reuse the shared :Blob / :AssetOccurrence
     classes and extracted text reuses :Document. Federated into the agent-connector-sdk
-    knowledge-graph hub.""" ;
-    owl:imports <http://knuckles.team/kg> .
+    knowledge-graph hub.""" .

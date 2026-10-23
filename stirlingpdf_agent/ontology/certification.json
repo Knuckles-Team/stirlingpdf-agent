@@ -1,9 +1,6 @@
 {
   "api_version": "arbora.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "02ca2cd14055667ec87e83d927f12a29dfc19b085c521409ab9cb217888a20e9",
-    "stirlingpdf_agent/connectors/mcp_source_presets.json": "1058a7ee1ec993676d03a03be62646916319af8af494fd33203bc183f5414496",
-    "stirlingpdf_agent/connectors/tool_schema_fingerprints.json": "147ce6de476d9b00127f5cd673eda6f0de4d38db1e317292264e49e36ba9067c",
     "stirlingpdf_agent/ontology/fixtures/records.json": "c2b3b079b2a331f0cfb61956173998739eefe23bf92c4baf10786eb4533957cc",
     "stirlingpdf_agent/ontology/mappings/source.yaml": "14eafc771b6ed304fd0d7fee5d827473957b93dbc964e95ebb20677625f2d28d",
     "stirlingpdf_agent/ontology/migrations/manifest.json": "f2d2e64239f585978c1a81e2400de8dfabf52e9594c856dfc3dcb790883c6b33",
