@@ -1,10 +1,11 @@
 from fastmcp import FastMCP
 
 from agent_connector_sdk.connector import build_server
+from agent_connector_sdk.connector_identity import connector_name
 
 
 def test_mcp_instance_creation():
     """Test that the MCP instance can be created successfully."""
     _, mcp = build_server("stirlingpdf_agent", command_args=[])
     assert isinstance(mcp, FastMCP)
-    assert "stirling pdf" in mcp.name.lower()
+    assert mcp.name == connector_name("stirlingpdf_agent")
