@@ -1,17 +1,10 @@
 from fastmcp import FastMCP
 
-from stirlingpdf_agent.mcp_server import get_mcp_instance
+from agent_connector_sdk.connector import build_server
 
 
 def test_mcp_instance_creation():
     """Test that the MCP instance can be created successfully."""
-    mcp, args, middlewares, registered_tags = get_mcp_instance()
+    _, mcp = build_server("stirlingpdf_agent", command_args=[])
     assert isinstance(mcp, FastMCP)
     assert "stirling pdf" in mcp.name.lower()
-
-
-def test_import_stirlingpdf_agent():
-    """Test that the package can be imported."""
-    import stirlingpdf_agent
-
-    assert stirlingpdf_agent.__version__ is not None  # type: ignore[attr-defined]

@@ -1,5 +1,5 @@
 schema_version: '1'
-connector: stirlingpdf-agent
+connector: stirlingpdf-mcp
 ontology_source: stirlingpdf
 sync:
 - preset: stirlingpdf-tools

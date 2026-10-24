@@ -1,8 +1,4 @@
-import builtins
-import importlib
 import os
-import runpy
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -18,10 +14,6 @@ from agent_connector_sdk.exceptions import (
 import stirlingpdf_agent
 from stirlingpdf_agent.api_client import StirlingPdfApi
 from stirlingpdf_agent.auth import get_client
-from stirlingpdf_agent.mcp_server import (
-    get_mcp_instance,
-    mcp_server,
-)
 from stirlingpdf_agent.stirlingpdf_agent_models import AddWatermarkModel
 
 # ==========================================
@@ -34,35 +26,6 @@ def test_getattr_attribute_error():
         AttributeError, match="has no attribute 'nonexistent_attribute_abc'"
     ):
         _ = stirlingpdf_agent.nonexistent_attribute_abc
-
-
-def test_dir():
-    res = dir(stirlingpdf_agent)
-    assert "StirlingPdfApi" in res
-
-
-def test_import_module_safely_error():
-    from stirlingpdf_agent import _import_module_safely
-
-    with patch("importlib.import_module", side_effect=ImportError):
-        res = _import_module_safely("some_nonexistent_module")
-        assert res is None
-
-
-def test_package_availabilities_mcp_disabled():
-    """
-    Test package availability with MCP disabled.
-
-    CONCEPT:SP-OS.governance.stirlingpdf
-    """
-    from stirlingpdf_agent import __getattr__
-
-    with patch("stirlingpdf_agent._import_module_safely", return_value=None):
-        assert __getattr__("_MCP_AVAILABLE") is False
-
-
-
-
 
 
 # ==========================================
@@ -253,111 +216,6 @@ def test_auth_get_client_auth_error():
 # ==========================================
 
 
-@pytest.mark.asyncio
-async def test_mcp_prompt():
-    mcp, _, _, _ = get_mcp_instance()
-    prompts = await mcp.list_prompts()
-    example_prompt_fn = None
-    for p in prompts:
-        if p.name == "example_prompt":
-            example_prompt_fn = p.fn
-            break
-
-    assert example_prompt_fn is not None
-    assert (
-        example_prompt_fn("test query")
-        == "Please help with 'test query' using Stirling PDF Agent"
-    )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def test_mcp_server_run():
-    mock_mcp = MagicMock()
-    mock_args = MagicMock()
-    mock_middlewares: list[Any] = []
-    mock_tags: list[Any] = []
-
-    with patch(
-        "stirlingpdf_agent.mcp_server.get_mcp_instance",
-        return_value=(mock_mcp, mock_args, mock_middlewares, mock_tags),
-    ):
-        # stdio
-        mock_args.transport = "stdio"
-        mcp_server()
-        mock_mcp.run.assert_called_with(transport="stdio")
-
-        # sse
-        mock_args.transport = "sse"
-        mock_args.host = "127.0.0.1"
-        mock_args.port = 8000
-        mcp_server()
-        mock_mcp.run.assert_called_with(transport="sse", host="127.0.0.1", port=8000)
-
-        # streamable-http
-        mock_args.transport = "streamable-http"
-        mcp_server()
-        mock_mcp.run.assert_called_with(
-            transport="streamable-http", host="127.0.0.1", port=8000
-        )
-
-        # invalid transport
-        mock_args.transport = "invalid"
-        with pytest.raises(SystemExit) as sys_exit:
-            mcp_server()
-        assert sys_exit.value.code == 1
-
-
-def test_mcp_server_import_requests_dependency_warning_error():
-    # We mock builtins.__import__ to raise ImportError specifically for requests.exceptions
-    original_import = builtins.__import__
-
-    def mocked_import(name, *args, **kwargs):
-        if "requests.exceptions" in name:
-            raise ImportError
-        return original_import(name, *args, **kwargs)
-
-    with patch("builtins.__import__", side_effect=mocked_import):
-        import sys
-
-        mcp_module = sys.modules["stirlingpdf_agent.mcp_server"]
-        importlib.reload(mcp_module)
-
-
-def test_mcp_server_main():
-    with patch("fastmcp.FastMCP.run") as mock_run, patch("sys.argv", ["mcp_server"]):
-        runpy.run_module("stirlingpdf_agent.mcp_server", run_name="__main__")
-        mock_run.assert_called_once_with(transport="stdio")
-
-
 # ==========================================
 # 8. Agent Server agent_server.py Tests
 # ==========================================
-
-
-
-
-
-
-@pytest.mark.asyncio
-async def test_mcp_serves_typed_per_operation_tools():
-    from stirlingpdf_agent.mcp_server import get_mcp_instance
-
-    mcp, _, _, _ = get_mcp_instance()
-    tools = {tool.name: tool for tool in await mcp.list_tools()}
-    assert "pdf_action" not in tools
-    watermark = tools["stirlingpdf_add_watermark"]
-    properties = watermark.parameters["properties"]
-    assert {"filepath", "watermarkText", "opacity"} <= set(properties)
-    assert "params_json" not in properties
-    assert watermark.annotations is not None

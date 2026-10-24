@@ -26,9 +26,9 @@ def _response(status: int, body: dict) -> MagicMock:
 @pytest.mark.usefixtures("mock_env")
 def test_status_tool_is_listed_read_only(monkeypatch):
     monkeypatch.setattr("sys.argv", ["stirlingpdf-mcp"])
-    from stirlingpdf_agent.mcp_server import get_mcp_instance
+    from agent_connector_sdk.connector import build_server
 
-    mcp, *_ = get_mcp_instance()
+    _, mcp = build_server("stirlingpdf_agent", command_args=[])
     tools = {tool.name: tool for tool in asyncio.run(mcp.list_tools())}
     annotations = tools["stirlingpdf_get_status"].annotations
     assert annotations.read_only_hint is True
