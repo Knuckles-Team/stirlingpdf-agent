@@ -7,9 +7,6 @@ Served live as ``connector://resources``. Regenerate by editing the declarations
 from __future__ import annotations
 
 from agent_connector_sdk.ingest.live_declaration import source_meta
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration, IngestSourceSpec
-
-CONNECTOR = "stirlingpdf-mcp"
 
 SOURCES = (
     source_meta(
@@ -28,65 +25,38 @@ SOURCES = (
     ),
 )
 
+SCHEMA_VERSION = 2
+
+FIELD_SETS = {
+    "fields_1": {
+        "actionName": "xsd:string",
+        "category": "xsd:string",
+        "endpoint": "xsd:string",
+        "mimeType": "xsd:string",
+        "opacity": "xsd:string",
+        "rotation": "xsd:string",
+        "sizeBytes": "xsd:integer",
+        "status": "xsd:string",
+        "watermarkText": "xsd:string",
+        "watermarkType": "xsd:string",
+    },
+}
+
 SCHEMA_MAPPINGS = {
     "PdfOperation": {
-        "fields": {
-            "actionName": "xsd:string",
-            "category": "xsd:string",
-            "endpoint": "xsd:string",
-            "mimeType": "xsd:string",
-            "opacity": "xsd:string",
-            "rotation": "xsd:string",
-            "sizeBytes": "xsd:integer",
-            "status": "xsd:string",
-            "watermarkText": "xsd:string",
-            "watermarkType": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "PdfPipeline": {
-        "fields": {
-            "actionName": "xsd:string",
-            "category": "xsd:string",
-            "endpoint": "xsd:string",
-            "mimeType": "xsd:string",
-            "opacity": "xsd:string",
-            "rotation": "xsd:string",
-            "sizeBytes": "xsd:integer",
-            "status": "xsd:string",
-            "watermarkText": "xsd:string",
-            "watermarkType": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "PdfTool": {
-        "fields": {
-            "actionName": "xsd:string",
-            "category": "xsd:string",
-            "endpoint": "xsd:string",
-            "mimeType": "xsd:string",
-            "opacity": "xsd:string",
-            "rotation": "xsd:string",
-            "sizeBytes": "xsd:integer",
-            "status": "xsd:string",
-            "watermarkText": "xsd:string",
-            "watermarkType": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "Tool",
     },
     "Watermark": {
-        "fields": {
-            "actionName": "xsd:string",
-            "category": "xsd:string",
-            "endpoint": "xsd:string",
-            "mimeType": "xsd:string",
-            "opacity": "xsd:string",
-            "rotation": "xsd:string",
-            "sizeBytes": "xsd:integer",
-            "status": "xsd:string",
-            "watermarkText": "xsd:string",
-            "watermarkType": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
 }
@@ -113,22 +83,3 @@ RESOURCES = (
         "name": "Watermark",
     },
 )
-
-
-def declaration() -> IngestSourceDeclaration:
-    """The declaration the server assembles from this module."""
-    specs = []
-    for item in SOURCES:
-        for entry in item["connector_sources"]:
-            body = {k: v for k, v in entry.items() if k not in ("tool", "mapping")}
-            specs.append(
-                IngestSourceSpec.model_validate({**body, "tools": (entry["tool"],)})
-            )
-    return IngestSourceDeclaration.model_validate(
-        {
-            "connector": CONNECTOR,
-            "sources": specs,
-            "schema_mappings": SCHEMA_MAPPINGS,
-            "resources": RESOURCES,
-        }
-    )

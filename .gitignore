@@ -192,3 +192,8 @@ trace.txt
 # P0.2/P0.3 (arbora-completion-program): materialized, dev-machine-only
 # standalone against its own tracked lock instead of the ecosystem workspace.
 # Never tracked.
+docker/Dockerfile
+docker/debug.Dockerfile
+docker/*.compose.yml
+stirlingpdf_agent/ontology/shapes/connector.shacl.ttl
+stirlingpdf_agent/ontology/certification.json
