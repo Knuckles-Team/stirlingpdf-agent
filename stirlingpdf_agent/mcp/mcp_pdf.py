@@ -1,6 +1,5 @@
 """Canonical MCP tools for PDF operations."""
 
-
 from agent_connector_sdk.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
