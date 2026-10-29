@@ -32,7 +32,9 @@ class _FakeTransport:
         self.requests: list[Any] = []
 
     async def source_status(self, _connector: str, _stream: str) -> Any:
-        return SimpleNamespace(accepted_checkpoint=None)
+        return SimpleNamespace(
+            connector=_connector, stream=_stream, accepted_checkpoint=None
+        )
 
     async def submit(self, request: Any) -> Any:
         self.requests.append(request)
@@ -93,9 +95,7 @@ def test_ingest_actions_maps_pdf_tools(ingest):
     )
     assert tool.payload["actionName"] == "add_watermark"
     assert tool.payload["category"] == "general"
-    ocr = next(
-        r for r in request.records if r.record_id == "stirlingpdf:tool:ocr-pdf"
-    )
+    ocr = next(r for r in request.records if r.record_id == "stirlingpdf:tool:ocr-pdf")
     assert ocr.payload["category"] == "misc"
     merge = next(
         r for r in request.records if r.record_id == "stirlingpdf:tool:merge-pdfs"
@@ -118,16 +118,12 @@ def test_ingest_operation_wires_provenance_and_watermark(ingest):
     assert res["nodes"] == 3
     request = transport.requests[0]
     op = next(
-        r
-        for r in request.records
-        if r.record_id == "stirlingpdf:op:add-watermark:1"
+        r for r in request.records if r.record_id == "stirlingpdf:op:add-watermark:1"
     )
     assert op.payload["actionName"] == "add_watermark"
     assert op.payload["status"] == "success"
     assert op.payload["sizeBytes"] == 2048
-    assert any(
-        r.record_id == "stirlingpdf:tool:add-watermark" for r in request.records
-    )
+    assert any(r.record_id == "stirlingpdf:tool:add-watermark" for r in request.records)
     watermark = [r for r in request.records if r.payload.get("watermarkText")]
     assert watermark and watermark[0].payload["watermarkText"] == "DRAFT"
     edge_types = sorted(
