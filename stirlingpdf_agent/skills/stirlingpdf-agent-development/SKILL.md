@@ -10,7 +10,7 @@ license: MIT
 tags: [stirlingpdf-agent, development, connector, test, gates]
 tier: repository
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 
@@ -18,7 +18,7 @@ metadata:
 
 This repository owns the Stirling PDF REST client, connector identity, MCP
 surface, packaged skills, prompts, ontology, and source bindings. Shared
-connector transports and contracts belong to `agent-connector-sdk`; admission,
+connector transports and contracts belong to `scion-sdk`; admission,
 serving, and durable graph state belong to their owning repositories. Read
 `AGENTS.md` before changing code and keep provider credentials, endpoints, and
 customer data out of source, logs, and skill content.

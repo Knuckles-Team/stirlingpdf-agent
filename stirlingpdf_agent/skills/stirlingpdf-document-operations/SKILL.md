@@ -12,7 +12,7 @@ description: >-
 license: MIT
 tags: [stirlingpdf, pdf, convert, ocr, security, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Stirling PDF Document Operations

@@ -1,9 +1,9 @@
 """Canonical MCP tools for PDF operations."""
 
-from agent_connector_sdk.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
+from scion_sdk.mcp.concurrency import run_blocking
 
 from stirlingpdf_agent.auth import get_client
 
@@ -22,7 +22,7 @@ def register_pdf_tools(mcp: FastMCP):
         """
         if ctx:
             await ctx.info("Discovering + ingesting Stirling PDF tools...")
-        from agent_connector_sdk.mcp.action_dispatch import public_actions
+        from scion_sdk.mcp.action_dispatch import public_actions
 
         from stirlingpdf_agent.kg_ingest import ingest_actions
 

@@ -197,3 +197,6 @@ docker/debug.Dockerfile
 docker/*.compose.yml
 stirlingpdf_agent/ontology/shapes/connector.shacl.ttl
 stirlingpdf_agent/ontology/certification.json
+
+# Spec status is computed at read time (pipelines-hook spec-status --write), never committed.
+specs/*/status.json

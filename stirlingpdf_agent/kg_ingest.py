@@ -12,7 +12,7 @@ applies to a PDF toolbox:
 * **blobs** — the raw PDF bytes (input and output artifacts) are stored as ``:Blob`` +
   ``:AssetOccurrence`` via the SDK ingest path.
 
-This module is a thin mapper over ``agent_connector_sdk.ingest`` -- the generated
+This module is a thin mapper over ``scion_sdk.ingest`` -- the generated
 ``SourceIngest`` client, not a local ingestion helper. Every call site here runs on a
 worker thread (never the engine's own event loop), so writes go through
 ``KnowledgeIngest.submit_blocking`` rather than the async ``submit``. Engine failures
@@ -28,7 +28,7 @@ import re
 import time
 from typing import Any
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     ChangeSet,
     Document,
     Entity,

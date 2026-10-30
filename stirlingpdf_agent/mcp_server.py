@@ -4,7 +4,7 @@ Stirling PDF Agent MCP Server.
 Provides tools to manipulate and edit PDF files (e.g. adding watermarks).
 """
 
-from agent_connector_sdk.connector_hooks import RegistrationContext
+from scion_sdk.connector_hooks import RegistrationContext
 
 from stirlingpdf_agent.mcp import register_pdf_tools
 

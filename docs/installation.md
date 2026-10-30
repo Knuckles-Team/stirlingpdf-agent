@@ -15,7 +15,7 @@ the path that matches how the operator want to run it.
 pip install stirlingpdf-agent
 ```
 
-The base install includes the FastMCP MCP-server runtime (`agent-connector-sdk[mcp]`), so
+The base install includes the FastMCP MCP-server runtime (`scion-sdk[mcp]`), so
 the `stirlingpdf-mcp` console script is ready immediately.
 
 ### Optional extras
@@ -24,7 +24,7 @@ Install an extra for additional capabilities:
 
 | Extra | Install | Pulls in |
 |---|---|---|
-| `agent` | `pip install "stirlingpdf-agent[agent]"` | Pydantic-AI agent server + Logfire tracing (`agent-connector-sdk[agent-runtime,logfire]`) |
+| `agent` | `pip install "stirlingpdf-agent[agent]"` | Pydantic-AI agent server + Logfire tracing (`scion-sdk[agent-runtime,logfire]`) |
 | `all` | `pip install "stirlingpdf-agent[all]"` | The MCP runtime, the agent server, and Logfire tracing |
 | `test` | `pip install "stirlingpdf-agent[test]"` | `pytest`, `pytest-asyncio`, `pytest-cov`, `pytest-xdist` |
 

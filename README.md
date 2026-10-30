@@ -60,8 +60,8 @@ Pick the extra that matches what the operator want to run:
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `stirlingpdf-agent[mcp]` | Connector-focused MCP server (`agent-connector-sdk[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
-| `stirlingpdf-agent[agent]` | Agent runtime (`agent-connector-sdk[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
+| `stirlingpdf-agent[mcp]` | Connector-focused MCP server (`scion-sdk[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
+| `stirlingpdf-agent[agent]` | Agent runtime (`scion-sdk[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
 | `stirlingpdf-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
@@ -196,7 +196,7 @@ When query strings or parameters are provided, an LLM-free **Knowledge Graph res
 <!-- MCP-CONFIG-EXAMPLES:START -->
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `stirlingpdf-agent[mcp]` to add
-> FastMCP / FastAPI through `agent-connector-sdk[mcp]`; the required Agent Utilities core
+> FastMCP / FastAPI through `scion-sdk[mcp]`; the required Agent Utilities core
 > still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
 > enables model orchestration.
 
@@ -397,7 +397,7 @@ services:
 | `TLS_PROFILE` | `private-pki` | TLS verification is mandatory. Select a named runtime profile from AgentConfig. |
 | `TLS_PROFILES_REF` | `secret://runtime/tls-profiles` |  |
 
-#### Inherited agent-connector-sdk variables (apply to every connector)
+#### Inherited scion-sdk variables (apply to every connector)
 
 | Variable | Example | Description |
 |----------|---------|-------------|
@@ -418,11 +418,11 @@ services:
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_17 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-connector-sdk set — do not edit._
+_17 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared scion-sdk set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
  Reference
 
-Stirling PDF Agent use both package-specific environment configurations and standard security settings inherited from the `agent-connector-sdk` system core.
+Stirling PDF Agent use both package-specific environment configurations and standard security settings inherited from the `scion-sdk` system core.
 
 ### Stirling PDF Agent Configs
 - **`PDFTOOL`** (bool, default: `True`): Toggles the dynamic PDF action tool registration.
@@ -431,7 +431,7 @@ Stirling PDF Agent use both package-specific environment configurations and stan
 - **`TLS_PROFILE`** (str): Selects a named `AgentConfig` transport-security profile. Certificate and hostname verification are mandatory.
 - **`TLS_PROFILES_REF`** (secret reference): Resolves the runtime-only TLS profile catalog.
 
-### Inherited agent-connector-sdk Configs
+### Inherited scion-sdk Configs
 - **`TRANSPORT`** (str, default: `stdio`): Server transport type. Options: `stdio`, `sse`, `streamable-http`.
 - **`HOST`** (str, default: `0.0.0.0`): Network host interface to bind the HTTP server.
 - **`PORT`** (int, default: `8000`): Port to listen on.
@@ -451,7 +451,7 @@ Stirling PDF Agent use both package-specific environment configurations and stan
 
 ## Security & Governance
 
-Built directly upon the enterprise-ready [`agent-connector-sdk`](https://github.com/Knuckles-Team/agent-connector-sdk) core, standard security parameters are fully supported:
+Built directly upon the enterprise-ready [`scion-sdk`](https://github.com/Knuckles-Team/scion-sdk) core, standard security parameters are fully supported:
 
 - **Eunomia Policies:** Fine-grained, policy-driven tool authorization. Supports `none`, local `embedded` (`mcp_policies.json`), or centralized `remote` modes.
 - **OIDC Token Delegation:** Compliant with RFC 8693 token exchange for flowing authenticating user credentials from Web UI / ACP → Agent → MCP.
@@ -514,15 +514,15 @@ Secrets are read-existing + seeded via `vault_sync` — you are only prompted fo
 
 <!-- END agent-os-genesis-deploy -->
 
-<!-- BEGIN agent-connector-sdk-deployment (generated; do not edit between markers) -->
+<!-- BEGIN scion-sdk-deployment (generated; do not edit between markers) -->
 
-## Deploy with `agent-connector-sdk-deployment`
+## Deploy with `scion-sdk-deployment`
 
-Provision this package with the consolidated **`agent-connector-sdk-deployment`**
+Provision this package with the consolidated **`scion-sdk-deployment`**
 workflow. It selects an installed-package, editable-source, or immutable-container
 path; records only runtime secret and TLS-profile references in `AgentConfig`; and
 runs doctor, registration, policy, observability, and rollback gates. Ask your agent
-to **"deploy `stirlingpdf-agent` with agent-connector-sdk-deployment"**.
+to **"deploy `stirlingpdf-agent` with scion-sdk-deployment"**.
 
 | Install mode | Command |
 |------|---------|
@@ -534,7 +534,7 @@ The repository embeds no deployment profile, credential value, certificate path,
 environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
 configured secret provider.
 
-<!-- END agent-connector-sdk-deployment -->
+<!-- END scion-sdk-deployment -->
 
 <!-- GOVERNED-CAPABILITY:START -->
 ## Governed capability contract
