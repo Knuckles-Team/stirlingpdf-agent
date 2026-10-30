@@ -1,7 +1,7 @@
 """Epistemic-graph typed-node ingestion -- Wire-First coverage for stirlingpdf-agent.
 
 Exercises the real ``ingest_entities`` / ``ingest_actions`` / ``ingest_operation`` seam
-against a fake ``agent_connector_sdk.ingest`` transport (no engine required), driven
+against a fake ``scion_sdk.ingest`` transport (no engine required), driven
 through ``KnowledgeIngest.submit_blocking`` since every call site here runs on a worker
 thread, not the engine's own event loop. The real SDK request builder still runs, so a
 malformed change set is still caught by the SDK's own contract, not re-derived here.
@@ -16,7 +16,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
+from scion_sdk.ingest import IngestError, KnowledgeIngest
 
 from stirlingpdf_agent.kg_ingest import (
     ingest_actions,

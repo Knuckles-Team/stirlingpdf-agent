@@ -1,13 +1,13 @@
 import sys
 
 import requests
-from agent_connector_sdk.exceptions import (
+from pydantic import ValidationError
+from scion_sdk.exceptions import (
     AuthError,
     ParameterError,
     UnauthorizedError,
     require_auth,
 )
-from pydantic import ValidationError
 
 from stirlingpdf_agent.api.api_client_base import BaseApiClient
 from stirlingpdf_agent.stirlingpdf_agent_models import AddWatermarkModel, Response
@@ -20,7 +20,7 @@ class WatermarkClient(BaseApiClient):
 
         Records a :PdfOperation
         with :usedTool / :produced / :derivedFrom / :appliedWatermark provenance. Fully
-        guarded: no-ops when the epistemic-graph engine or agent-connector-sdk KG stack is
+        guarded: no-ops when the epistemic-graph engine or scion-sdk KG stack is
         absent, so the watermark call never fails because of ingestion.
         """
         try:

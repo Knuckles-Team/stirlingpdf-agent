@@ -1,7 +1,7 @@
 from fastmcp import FastMCP
 
-from agent_connector_sdk.connector import build_server
-from agent_connector_sdk.connector_identity import connector_name
+from scion_sdk.connector import build_server
+from scion_sdk.connector_identity import connector_name
 
 
 def test_mcp_instance_creation():

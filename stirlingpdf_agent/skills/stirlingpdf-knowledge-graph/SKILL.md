@@ -11,7 +11,7 @@ description: >-
 license: MIT
 tags: [stirlingpdf, pdf, knowledge-graph, ingestion, provenance, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Stirling PDF → Knowledge Graph
