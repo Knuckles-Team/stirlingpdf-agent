@@ -2,5 +2,7 @@
 
 Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requirements.md](requirements.md).
 
-- [x] CONN-STIRLINGPDF-AGENT-R001: Read-only status operation.
-- [x] **CONN-STIRLINGPDF-AGENT-R002:** File the pack, manifest and ingest binding under the fleet name `stirlingpdf-mcp`.
+Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Tasks run producer first; a checked task has landed.
+
+- [x] T001 [US1] CONN-STIRLINGPDF-AGENT-R001 Read-only status operation.
+- [x] T002 [US2] CONN-STIRLINGPDF-AGENT-R002 Fleet name.
