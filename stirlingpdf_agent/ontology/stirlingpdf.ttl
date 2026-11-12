@@ -1,7 +1,8 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix dc: <http://purl.org/dc/terms/> .
-@prefix : <http://knuckles.team/kg#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/stirlingpdf#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -14,22 +15,22 @@
 # Backs the stirlingpdf-agent MCP tool surface (pdf_action add_watermark / dispatched actions).
 
 :PdfOperation a owl:Class ;
-    rdfs:subClassOf :Action ;
+    rdfs:subClassOf core:Action ;
     rdfs:label "PDF Operation" ;
     rdfs:comment "A single Stirling PDF API action invocation (e.g. add-watermark, merge, split, convert), recording its inputs, output, and parameters." .
 
 :PdfTool a owl:Class ;
-    rdfs:subClassOf :Tool ;
+    rdfs:subClassOf core:Tool ;
     rdfs:label "PDF Tool" ;
     rdfs:comment "An available Stirling PDF endpoint / action that can be dispatched (e.g. add_watermark), as discovered via list_actions." .
 
 :PdfPipeline a owl:Class ;
-    rdfs:subClassOf :Procedure ;
+    rdfs:subClassOf core:Procedure ;
     rdfs:label "PDF Pipeline" ;
     rdfs:comment "An ordered sequence of PDF operations chained end-to-end into a single Stirling workflow." .
 
 :Watermark a owl:Class ;
-    rdfs:subClassOf :Concept ;
+    rdfs:subClassOf core:Concept ;
     rdfs:label "Watermark" ;
     rdfs:comment "A text or image watermark stamped onto a PDF by an add-watermark operation." .
 
@@ -50,12 +51,12 @@
     rdfs:label "produced" ;
     rdfs:comment "Links a PdfOperation to the output PDF blob (:AssetOccurrence) it generated." ;
     rdfs:domain :PdfOperation ;
-    rdfs:range :AssetOccurrence .
+    rdfs:range core:AssetOccurrence .
 
 :derivedFrom a owl:ObjectProperty ;
     rdfs:label "derived from" ;
     rdfs:comment "Provenance link from an output PDF (:AssetOccurrence) back to the input PDF it was derived from." ;
-    rdfs:range :AssetOccurrence .
+    rdfs:range core:AssetOccurrence .
 
 :appliedWatermark a owl:ObjectProperty ;
     rdfs:label "applied watermark" ;
@@ -73,7 +74,7 @@
     rdfs:label "performed by" ;
     rdfs:comment "Links a PdfOperation to the Person who requested it." ;
     rdfs:domain :PdfOperation ;
-    rdfs:range :Person .
+    rdfs:range core:Person .
 
 # --- fields (owl:DatatypeProperty) ---
 
@@ -127,7 +128,7 @@
     rdfs:comment "Byte size of the PDF artifact produced or consumed." ;
     rdfs:range xsd:integer .
 
-<http://knuckles.team/kg/stirlingpdf> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/stirlingpdf> a owl:Ontology ;
     rdfs:label "Stirling PDF Ontology" ;
     rdfs:comment """Stirling PDF document-manipulation model — PDF operations, tools,
     pipelines and watermarks, with the document-provenance links that tie an output PDF
