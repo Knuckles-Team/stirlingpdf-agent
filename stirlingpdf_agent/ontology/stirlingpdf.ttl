@@ -14,18 +14,22 @@
 # Backs the stirlingpdf-agent MCP tool surface (pdf_action add_watermark / dispatched actions).
 
 :PdfOperation a owl:Class ;
+    rdfs:subClassOf :Action ;
     rdfs:label "PDF Operation" ;
     rdfs:comment "A single Stirling PDF API action invocation (e.g. add-watermark, merge, split, convert), recording its inputs, output, and parameters." .
 
 :PdfTool a owl:Class ;
+    rdfs:subClassOf :Tool ;
     rdfs:label "PDF Tool" ;
     rdfs:comment "An available Stirling PDF endpoint / action that can be dispatched (e.g. add_watermark), as discovered via list_actions." .
 
 :PdfPipeline a owl:Class ;
+    rdfs:subClassOf :Procedure ;
     rdfs:label "PDF Pipeline" ;
     rdfs:comment "An ordered sequence of PDF operations chained end-to-end into a single Stirling workflow." .
 
 :Watermark a owl:Class ;
+    rdfs:subClassOf :Concept ;
     rdfs:label "Watermark" ;
     rdfs:comment "A text or image watermark stamped onto a PDF by an add-watermark operation." .
 

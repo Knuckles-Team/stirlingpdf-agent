@@ -1,69 +1,40 @@
-# Stirlingpdf Document Operations
-
-Run any Stirling PDF operation — merge, split, rotate, convert, compress, OCR, metadata, and document-security actions (password / sanitize / stamp) — through the stirlingpdf-agent MCP server's dynamic dispatch tool. Use when the agent must transform, convert, or secure a PDF on a self-hosted Stirling instance and first needs to discover which actions the instance exposes. Do NOT use for the dedicated watermark flow (use stirlingpdf-watermarking) or for ingesting results into the knowledge graph (use stirlingpdf-knowledge-graph).
-
 # Stirling PDF Document Operations
 
-Drive the full Stirling PDF REST surface through the **`stirlingpdf-agent`** MCP server's
-**dynamic dispatch** tool. `pdf_action` resolves any action the client exposes by name,
-so new Stirling endpoints are reachable without a code change — always discover with
-`list_actions` first, then dispatch.
+Transform and secure PDFs through typed tools that take and return file bytes.
 
-## When to use
-- Transform PDFs: `merge`, `split`, `rotate`, `compress`, `repair`.
-- Convert to/from PDF: image ↔ PDF, Office ↔ PDF, HTML ↔ PDF.
-- Extract / OCR: `ocr`, text/metadata extraction.
-- Secure a document: `add_password`, `remove_password`, `sanitize`, `add_stamp`.
+One typed tool per Stirling PDF operation on the **`stirlingpdf-agent`** MCP server.
 
-## When NOT to use
-- Applying a watermark → `stirlingpdf-watermarking` (the first-class typed flow).
-- Persisting operations/artifacts into the KG → `stirlingpdf-knowledge-graph`.
-- Reading Stirling's own docs → `stirlingpdf-agent-docs`.
+## File bytes
+Each tool takes the PDF as exactly one of:
+- `file_base64` - the PDF bytes, base64 encoded, with an optional `filename`. No shared filesystem is needed.
+- `filepath` - a path the server process can read.
 
-## Prerequisites & environment
-Connect via the `mcp-client` skill against the **`stirlingpdf-agent`** MCP server.
+`stirlingpdf_merge_pdfs` takes `files_base64`, a list of at least two base64 PDFs.
+The result's `data` field is the output file, base64 encoded (a ZIP for `stirlingpdf_split_pdf`).
+Inputs and outputs are capped at `STIRLINGPDF_MAX_FILE_BYTES` (default 25 MiB). Larger documents
+belong in an object store and are handled by the store connector, not passed through a tool call.
 
-| Variable | Required | Notes |
-|----------|----------|-------|
-| `STIRLINGPDF_URL` | ✅ | Base URL of the Stirling PDF instance |
-| `STIRLINGPDF_API_KEY` | optional | Sent as `X-API-KEY` |
-| `TLS_PROFILE` / `TLS_PROFILES_REF` | optional | Named runtime trust profile and secret-backed catalog; verification is mandatory |
+## Tools
+| Tool | Purpose |
+|------|---------|
+| `stirlingpdf_rotate_pdf` | Rotate every page by a multiple of 90 degrees (`angle`). |
+| `stirlingpdf_compress_pdf` | Compress at `optimize_level` 1 to 9. |
+| `stirlingpdf_split_pdf` | Split after the listed pages (`page_numbers`, for example `1,3,7-9`); returns a ZIP. |
+| `stirlingpdf_merge_pdfs` | Merge base64 PDFs in order or by `sort_type`. |
+| `stirlingpdf_add_password` | Encrypt with `password` and an optional `owner_password`. |
+| `stirlingpdf_remove_password` | Remove the password from an encrypted PDF. |
+| `stirlingpdf_sanitize_pdf` | Strip JavaScript, embedded files, metadata or links. |
 
-Input files are resolved on the **server** filesystem (`filepath`).
+## Recipes
+Rotate a PDF a quarter turn: `stirlingpdf_rotate_pdf` with `angle=90` and `file_base64=<bytes>`.
 
-## Tools & actions
-| Tool | Action | Purpose |
-|------|--------|---------|
-| `pdf_action` | `list_actions` | Enumerate every available action on this instance |
-| `pdf_action` | `<action>` | Dispatch that action with `params_json` |
-
-`pdf_action` takes `action` + a `params_json` **JSON string**; unknown actions return a
-did-you-mean error listing the real ones, so `list_actions` is the safe first call.
-
-## Recipes (`params_json`)
-Discover the surface (call `action="list_actions"`):
-```json
-{}
-```
-Dispatch a discovered action (shape depends on the action's parameters):
-```json
-{"filepath":"/data/input.pdf"}
-```
-Watermark example, to show the dispatch shape (prefer the watermark skill):
-```json
-{"filepath":"/data/input.pdf","watermarkType":"text","watermarkText":"CONFIDENTIAL"}
-```
+Compress a workspace file: `stirlingpdf_compress_pdf` with `filepath=/data/report.pdf`, `optimize_level=6`.
 
 ## Gotchas
-- **Always** `list_actions` before dispatching — the exact action set is instance- and
-  build-dependent; only `add_watermark` is guaranteed by the typed client.
-- `params_json` is a **string** of JSON; per-action parameter names/casing follow
-  Stirling's REST fields (often camelCase strings).
-- File inputs are server-side paths; the response `data` is base64 PDF bytes.
-- `list_actions`, `help`, and `actions` are discovery aliases — they never mutate.
+- Pass exactly one of `file_base64` and `filepath`; both or neither is refused.
+- Operations need the API key when the instance enforces security (`STIRLINGPDF_API_KEY`).
+- Encryption and sanitizing change the document; keep the original until the output is verified.
 
 ## Related
-- `stirlingpdf-watermarking` — the dedicated, typed watermark operation.
-- `stirlingpdf-knowledge-graph` — record dispatched operations + their input/output
-  PDFs and `:derivedFrom` provenance in the knowledge graph.
-- `stirlingpdf-agent-docs` — full Stirling PDF reference documentation.
+- `stirlingpdf-watermarking` - the watermark operation.
+- `stirlingpdf-knowledge-graph` - record operations in the graph.
