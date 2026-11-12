@@ -21,7 +21,7 @@ class WatermarkClient(BaseApiClient):
 
         Records a :PdfOperation
         with :usedTool / :produced / :derivedFrom / :appliedWatermark provenance. Fully
-        guarded: no-ops when the epistemic-graph engine or scion-sdk KG stack is
+        guarded: no-ops when the medulla engine or scion-sdk KG stack is
         absent, so the watermark call never fails because of ingestion.
         """
         try:

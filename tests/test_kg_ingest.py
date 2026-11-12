@@ -1,4 +1,4 @@
-"""Epistemic-graph typed-node ingestion -- Wire-First coverage for stirlingpdf-agent.
+"""Medulla typed-node ingestion -- Wire-First coverage for stirlingpdf-agent.
 
 Exercises the real ``ingest_entities`` / ``ingest_actions`` / ``ingest_operation`` seam
 against a fake ``scion_sdk.ingest`` transport (no engine required), driven
@@ -26,7 +26,7 @@ from stirlingpdf_agent.kg_ingest import (
 
 
 class _FakeTransport:
-    """Records every submitted request; no epistemic-graph engine required."""
+    """Records every submitted request; no medulla engine required."""
 
     def __init__(self) -> None:
         self.requests: list[Any] = []

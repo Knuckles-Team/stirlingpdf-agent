@@ -1,7 +1,7 @@
-"""Native epistemic-graph ingestion for Stirling PDF operations (typed nodes + docs).
+"""Native medulla ingestion for Stirling PDF operations (typed nodes + docs).
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. The stirlingpdf-agent natively pushes
-its data into the ONE epistemic-graph engine from its own code, in every modality that
+its data into the ONE medulla engine from its own code, in every modality that
 applies to a PDF toolbox:
 
 * **typed nodes** — the available Stirling actions become ``:PdfTool`` nodes and each
@@ -91,7 +91,7 @@ def ingest_entities(
     *,
     ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
-    """Write typed OWL nodes (+ edges) into epistemic-graph.
+    """Write typed OWL nodes (+ edges) into medulla.
 
     Nodes use ``node_type`` and relationships use ``relationship``.
     """
