@@ -46,8 +46,8 @@ ingestion entry point **no-ops** cleanly — nothing fails.
 ## Tools & actions
 | Tool | Purpose |
 |------|---------|
-| `stirlingpdf_ingest_tools` | Discover available actions (`list_actions`) and ingest them as `:PdfTool` nodes |
-| `pdf_action` (`add_watermark`) | Auto-ingests a `:PdfOperation` + input/output blobs on success |
+| `stirlingpdf_ingest_tools` | Discover the client's operations and ingest them as `:PdfTool` nodes |
+| `stirlingpdf_add_watermark` | Auto-ingests a `:PdfOperation` + input/output blobs on success |
 
 `stirlingpdf_ingest_tools` takes no parameters; it returns `{"listed": N, "ingested": {...}}`.
 

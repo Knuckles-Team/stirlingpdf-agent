@@ -1,6 +1,6 @@
-# Stirlingpdf Knowledge Graph
+# Stirling PDF → Knowledge Graph
 
-Natively ingest Stirling PDF activity into the epistemic-graph knowledge graph — available actions as :PdfTool nodes, executed operations as :PdfOperation nodes, and the raw input/output PDF bytes as :Blob / :AssetOccurrence with :derivedFrom provenance — via the stirlingpdf-agent MCP server. Use when the agent must make PDF operations durable, deduped, and queryable. Do NOT use to actually transform a PDF (use stirlingpdf-watermarking or stirlingpdf-document-operations).
+Natively ingest Stirling PDF activity into the epistemic-graph knowledge graph — available actions as :PdfTool nodes, executed operations as :PdfOperation nodes, and the raw input/output PDF bytes as :Blob / :MediaAsset with :derivedFrom provenance — via the stirlingpdf-agent MCP server. Use when the agent must make PDF operations durable, deduped, and queryable. Do NOT use to actually transform a PDF (use stirlingpdf-watermarking or stirlingpdf-document-operations).
 
 # Stirling PDF → Knowledge Graph
 
@@ -34,18 +34,18 @@ ingestion entry point **no-ops** cleanly — nothing fails.
 ## Tools & actions
 | Tool | Purpose |
 |------|---------|
-| `stirlingpdf_ingest_tools` | Discover available actions (`list_actions`) and ingest them as `:PdfTool` nodes |
-| `pdf_action` (`add_watermark`) | Auto-ingests a `:PdfOperation` + input/output blobs on success |
+| `stirlingpdf_ingest_tools` | Discover the client's operations and ingest them as `:PdfTool` nodes |
+| `stirlingpdf_add_watermark` | Auto-ingests a `:PdfOperation` + input/output blobs on success |
 
 `stirlingpdf_ingest_tools` takes no parameters; it returns `{"listed": N, "ingested": {...}}`.
 
 ## Ontology it writes (domain `stirlingpdf`)
 - `:PdfTool` — an available Stirling action (`stirlingpdf:tool:<slug>`).
 - `:PdfOperation` — one executed action (`stirlingpdf:op:<action>:<ts>`), `:usedTool` →
-  `:PdfTool`, `:produced` → output `:AssetOccurrence`, `:hasInput` → input `:AssetOccurrence`.
+  `:PdfTool`, `:produced` → output `:MediaAsset`, `:hasInput` → input `:MediaAsset`.
 - `:Watermark` — for watermark ops, linked via `:appliedWatermark`.
-- Output `:AssetOccurrence` → `:derivedFrom` → input `:AssetOccurrence` (document provenance).
-- Raw PDF bytes reuse the shared `:Blob` / `:AssetOccurrence` classes; extracted text reuses
+- Output `:MediaAsset` → `:derivedFrom` → input `:MediaAsset` (document provenance).
+- Raw PDF bytes reuse the shared `:Blob` / `:MediaAsset` classes; extracted text reuses
   `:Document`.
 
 ## Recipes

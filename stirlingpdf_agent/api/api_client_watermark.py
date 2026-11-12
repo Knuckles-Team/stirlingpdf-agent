@@ -10,6 +10,7 @@ from scion_sdk.exceptions import (
 )
 
 from stirlingpdf_agent.api.api_client_base import BaseApiClient
+from stirlingpdf_agent.api.files import read_input
 from stirlingpdf_agent.stirlingpdf_agent_models import AddWatermarkModel, Response
 
 
@@ -59,7 +60,7 @@ class WatermarkClient(BaseApiClient):
     @require_auth
     def add_watermark(
         self,
-        filepath: str,
+        filepath: str | None = None,
         watermarkType: str | None = None,
         watermarkText: str | None = None,
         alphabet: str | None = None,
@@ -68,12 +69,15 @@ class WatermarkClient(BaseApiClient):
         opacity: str | None = None,
         widthSpacer: str | None = None,
         heightSpacer: str | None = None,
+        file_base64: str | None = None,
+        filename: str | None = None,
     ) -> Response:
         """
-        Add a watermark to a PDF file.
+        Add a watermark to a PDF file (POST /api/v1/general/add-watermark).
 
-        :param filepath: Path to the input PDF file.
-        :type filepath: str
+        :param filepath: Path to the input PDF file on the server; give this or file_base64.
+        :param file_base64: The input PDF as base64; give this or filepath.
+        :param filename: Name sent with the uploaded bytes.
         :param watermarkType: Type of watermark (e.g. 'text').
         :param watermarkText: The text of the watermark.
         :param alphabet: Alphabet type (default roman).
@@ -107,18 +111,20 @@ class WatermarkClient(BaseApiClient):
                 },
             )
 
-            with open(filepath, "rb") as f:
-                files = {"fileInput": (filepath, f, "application/pdf")}
-                response = self._session.post(
-                    url=f"{self.url}/general/add-watermark",
-                    data=model.api_parameters,
-                    files=files,
-                    headers=self.headers,
-                )
+            name, content = read_input(filepath, file_base64, filename)
+            files = {"fileInput": (name, content, "application/pdf")}
+            response = self._session.post(
+                url=f"{self.url}/general/add-watermark",
+                data=model.api_parameters,
+                files=files,
+                headers=self.headers,
+            )
 
             response.raise_for_status()
 
-            self._ingest_watermark(filepath, response.content, model.api_parameters)
+            self._ingest_watermark(
+                filepath or filename or "", response.content, model.api_parameters
+            )
 
             return Response(response=response, data=response.content)
 
