@@ -1,10 +1,10 @@
 # Stirling PDF → Knowledge Graph
 
-Natively ingest Stirling PDF activity into the epistemic-graph knowledge graph — available actions as :PdfTool nodes, executed operations as :PdfOperation nodes, and the raw input/output PDF bytes as :Blob / :MediaAsset with :derivedFrom provenance — via the stirlingpdf-agent MCP server. Use when the agent must make PDF operations durable, deduped, and queryable. Do NOT use to actually transform a PDF (use stirlingpdf-watermarking or stirlingpdf-document-operations).
+Natively ingest Stirling PDF activity into the medulla knowledge graph — available actions as :PdfTool nodes, executed operations as :PdfOperation nodes, and the raw input/output PDF bytes as :Blob / :MediaAsset with :derivedFrom provenance — via the stirlingpdf-agent MCP server. Use when the agent must make PDF operations durable, deduped, and queryable. Do NOT use to actually transform a PDF (use stirlingpdf-watermarking or stirlingpdf-document-operations).
 
 # Stirling PDF → Knowledge Graph
 
-Push Stirling PDF activity into the ONE epistemic-graph engine as typed OWL nodes with
+Push Stirling PDF activity into the ONE medulla engine as typed OWL nodes with
 document provenance. Ingestion is **native and default-on**: every successful
 `add_watermark` automatically records its `:PdfOperation` plus the input/output PDF blobs
 and their `:derivedFrom` link when an engine is reachable. This skill covers the explicit
@@ -23,7 +23,7 @@ tool for discovering + ingesting the instance's tool catalog, and the model it w
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`stirlingpdf-agent`** MCP server, plus a
-reachable epistemic-graph engine (`GraphComputeEngine`). With **no** engine, every
+reachable medulla engine (`GraphComputeEngine`). With **no** engine, every
 ingestion entry point **no-ops** cleanly — nothing fails.
 
 | Variable | Required | Notes |

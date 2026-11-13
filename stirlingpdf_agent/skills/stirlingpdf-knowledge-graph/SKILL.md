@@ -2,7 +2,7 @@
 name: stirlingpdf-knowledge-graph
 skill_type: skill
 description: >-
-  Natively ingest Stirling PDF activity into the epistemic-graph knowledge graph —
+  Natively ingest Stirling PDF activity into the medulla knowledge graph —
   available actions as :PdfTool nodes, executed operations as :PdfOperation nodes,
   and the raw input/output PDF bytes as :Blob / :MediaAsset with :derivedFrom
   provenance — via the stirlingpdf-agent MCP server. Use when the agent must make
@@ -16,7 +16,7 @@ metadata:
 ---
 # Stirling PDF → Knowledge Graph
 
-Push Stirling PDF activity into the ONE epistemic-graph engine as typed OWL nodes with
+Push Stirling PDF activity into the ONE medulla engine as typed OWL nodes with
 document provenance. Ingestion is **native and default-on**: every successful
 `add_watermark` automatically records its `:PdfOperation` plus the input/output PDF blobs
 and their `:derivedFrom` link when an engine is reachable. This skill covers the explicit
@@ -35,7 +35,7 @@ tool for discovering + ingesting the instance's tool catalog, and the model it w
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`stirlingpdf-agent`** MCP server, plus a
-reachable epistemic-graph engine (`GraphComputeEngine`). With **no** engine, every
+reachable medulla engine (`GraphComputeEngine`). With **no** engine, every
 ingestion entry point **no-ops** cleanly — nothing fails.
 
 | Variable | Required | Notes |
