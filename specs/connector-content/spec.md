@@ -26,6 +26,14 @@ The fleet operator and the engine rely on this behaviour of `stirlingpdf-agent`:
 
 1. **Given** the `stirlingpdf-agent` connector built from the default branch, **When** `tests/test_default_content_surfaces.py::test_default_content_surfaces` runs, **Then** `resources/list` includes `skill://` and `ontology://`; `prompts/list` includes each packaged prompt.
 
+### User Story 2 - The pack extends only the core ontology (Priority: P1)
+
+The fleet operator and the engine rely on this behaviour of ``: its pack adds terms under the core ontology and declares no second copy of a core term. It is proven independently of the other stories.
+
+**Acceptance Scenarios**:
+
+1. **Given** the `` connector built from the default branch, **When** `tests/test_ontology_extends_core.py::test_pack_declares_no_core_term` runs, **Then** the served Turtle declares none of the listed core terms.
+
 ### Edge Cases
 
 - The vendor service is unreachable or rejects the credential: the connector returns the SDK typed error and never a partial result.
@@ -34,10 +42,12 @@ The fleet operator and the engine rely on this behaviour of `stirlingpdf-agent`:
 ## Requirements
 
 - **FR-001**: Default content. Rows: `CONN-STIRLINGPDF-AGENT-CONNECTOR-CONTENT-R001`.
+- **FR-002**: The pack extends only the core ontology. Rows: `CONN-STIRLINGPDF-AGENT-CONNECTOR-CONTENT-R002`.
 
 ## Success Criteria
 
 - **SC-001**: `resources/list` includes `skill://` and `ontology://`; `prompts/list` includes each packaged prompt. Rows: `CONN-STIRLINGPDF-AGENT-CONNECTOR-CONTENT-R001`.
+- **SC-002**: The served Turtle declares none of the listed core terms. Rows: `CONN-STIRLINGPDF-AGENT-CONNECTOR-CONTENT-R002`.
 
 ## Assumptions
 
@@ -49,3 +59,4 @@ The fleet operator and the engine rely on this behaviour of `stirlingpdf-agent`:
 | Label | Rows | Design section | Test ID | Evidence |
 |---|---|---|---|---|
 | FR-001 | `CONN-STIRLINGPDF-AGENT-CONNECTOR-CONTENT-R001` | plan.md Production caller chain | T-001 | tests/test_default_content_surfaces.py::test_default_content_surfaces |
+| FR-002 | `CONN-STIRLINGPDF-AGENT-CONNECTOR-CONTENT-R002` | plan.md Production caller chain | T-002 | tests/test_ontology_extends_core.py::test_pack_declares_no_core_term |

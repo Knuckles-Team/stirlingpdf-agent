@@ -42,22 +42,6 @@
     rdfs:domain :PdfOperation ;
     rdfs:range :PdfTool .
 
-:hasInput a owl:ObjectProperty ;
-    rdfs:label "has input" ;
-    rdfs:comment "Links a PdfOperation to the source PDF it consumed (a :Blob / :AssetOccurrence or :Document)." ;
-    rdfs:domain :PdfOperation .
-
-:produced a owl:ObjectProperty ;
-    rdfs:label "produced" ;
-    rdfs:comment "Links a PdfOperation to the output PDF blob (:AssetOccurrence) it generated." ;
-    rdfs:domain :PdfOperation ;
-    rdfs:range core:AssetOccurrence .
-
-:derivedFrom a owl:ObjectProperty ;
-    rdfs:label "derived from" ;
-    rdfs:comment "Provenance link from an output PDF (:AssetOccurrence) back to the input PDF it was derived from." ;
-    rdfs:range core:AssetOccurrence .
-
 :appliedWatermark a owl:ObjectProperty ;
     rdfs:label "applied watermark" ;
     rdfs:comment "Links a PdfOperation to the Watermark it stamped onto the document." ;
@@ -69,12 +53,6 @@
     rdfs:comment "Links a PdfOperation to the PdfPipeline it participates in." ;
     rdfs:domain :PdfOperation ;
     rdfs:range :PdfPipeline .
-
-:performedBy a owl:ObjectProperty ;
-    rdfs:label "performed by" ;
-    rdfs:comment "Links a PdfOperation to the Person who requested it." ;
-    rdfs:domain :PdfOperation ;
-    rdfs:range core:Person .
 
 # --- fields (owl:DatatypeProperty) ---
 
@@ -122,11 +100,6 @@
     rdfs:label "mime type" ;
     rdfs:comment "MIME type of the PDF artifact produced or consumed (typically application/pdf)." ;
     rdfs:range xsd:string .
-
-:sizeBytes a owl:DatatypeProperty ;
-    rdfs:label "size bytes" ;
-    rdfs:comment "Byte size of the PDF artifact produced or consumed." ;
-    rdfs:range xsd:integer .
 
 <https://knuckles-team.github.io/ontology/connector/stirlingpdf> a owl:Ontology ;
     rdfs:label "Stirling PDF Ontology" ;
