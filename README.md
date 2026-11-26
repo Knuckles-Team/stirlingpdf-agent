@@ -8,34 +8,21 @@
 ![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/stirlingpdf-agent)
 ![GitHub contributors](https://img.shields.io/github/contributors/Knuckles-Team/stirlingpdf-agent)
 ![PyPI - License](https://img.shields.io/pypi/l/stirlingpdf-agent)
+![GitHub](https://img.shields.io/github/license/Knuckles-Team/stirlingpdf-agent)
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Knuckles-Team/stirlingpdf-agent)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/Knuckles-Team/stirlingpdf-agent)
 ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Knuckles-Team/stirlingpdf-agent)
 ![GitHub issues](https://img.shields.io/github/issues/Knuckles-Team/stirlingpdf-agent)
 ![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/stirlingpdf-agent)
+![GitHub language count](https://img.shields.io/github/languages/count/Knuckles-Team/stirlingpdf-agent)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/stirlingpdf-agent)
+![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/Knuckles-Team/stirlingpdf-agent)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/stirlingpdf-agent)
+![PyPI - Implementation](https://img.shields.io/pypi/implementation/stirlingpdf-agent)
 
-> **Documentation** — Installation, deployment, usage across the MCP, API, and CLI
-> interfaces, and guidance for provisioning the Stirling PDF service are maintained in
-> the [official documentation](https://knuckles-team.github.io/stirlingpdf-agent/).
-
----
-
-## 📚 Table of Contents
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Installation](#installation)
-- [Quick Start & Usage Examples](#quick-start--usage-examples)
-- [MCP Server Mode](#mcp-server-mode)
-  - [Available MCP Tools](#available-mcp-tools)
-  - [MCP Configuration Examples](#mcp-configuration-examples)
-- [Agent Mode](#agent-mode)
-  - [Running the Agent CLI](#running-the-agent-cli)
-  - [Docker Compose Orchestration](#docker-compose-orchestration)
-- [Environment Variables Reference](#environment-variables-reference)
-- [Security & Governance](#security--governance)
-- [Developer & Contribute Guidelines](#contribute)
-- [Documentation](#documentation)
+> **Documentation** — Installation, deployment, and usage across the API, CLI, MCP,
+> and A2A agent interfaces are maintained in the
+> [official documentation](https://knuckles-team.github.io/stirlingpdf-agent/).
 
 ---
 
@@ -54,94 +41,13 @@
 
 ---
 
-## Installation
+## MCP
 
-Pick the extra that matches what the operator want to run:
-
-| Extra | Installs | Use when |
-|-------|----------|----------|
-| `stirlingpdf-agent[mcp]` | Connector-focused MCP server (`scion-sdk[mcp]` — FastMCP/FastAPI + `medulla[full]`) | The operator only run the **MCP server** (smallest install / image) |
-| `stirlingpdf-agent[agent]` | Agent runtime (`scion-sdk[agent-runtime,logfire]` — model orchestration + `medulla[full]`) | The operator run the **integrated agent** |
-| `stirlingpdf-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
-
-```bash
-# Connector-focused MCP server (includes the shared graph engine)
-uv pip install "stirlingpdf-agent[mcp]"
-
-# Agent runtime (adds model orchestration to the shared graph engine)
-uv pip install "stirlingpdf-agent[agent]"
-
-# Everything (development)
-uv pip install "stirlingpdf-agent[all]"      # or: python -m pip install "stirlingpdf-agent[all]"
-```
-
-### Container images (`:mcp` vs `:agent`)
-
-One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
-
-| Image tag | Build target | Contents | Entrypoint |
-|-----------|--------------|----------|------------|
-| `knucklessg1/stirlingpdf-agent:mcp` | `--target mcp` | `stirlingpdf-agent[mcp]` — **connector-focused**, includes `medulla[full]`; no model-orchestration stack | `stirlingpdf-mcp` |
-| `knucklessg1/stirlingpdf-agent:2.4.6` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **agent runtime**, model orchestration + `medulla[full]` | `stirlingpdf-agent` |
-
-```bash
-docker build --target mcp   -t knucklessg1/stirlingpdf-agent:mcp    docker/   # connector-focused MCP server
-docker build --target agent -t knucklessg1/stirlingpdf-agent:2.4.6 docker/   # agent runtime
-```
-
-`docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
-agent (`:2.4.6`) with a co-located `:mcp` sidecar. Both compose files require the deployed
-image to be pinned by digest via `STIRLINGPDF_AGENT_MCP_IMAGE` / `STIRLINGPDF_AGENT_AGENT_IMAGE`
-(e.g. `knucklessg1/stirlingpdf-agent@sha256:<digest>`) — least-privilege, read-only,
-non-root (`10001:10001`) containers with no floating tag in production.
-
-### Knowledge-graph database (`medulla`)
-
-Both `[mcp]` and `[agent]` carry the **medulla** engine through the required
-Meristem core dependency (`medulla[full]`). The `[mcp]` extra keeps
-the server connector-focused; `[agent]` also enables model orchestration. Local
-deployments can use the bundled engine. For production or shared state, run
-**medulla as a dedicated database service** and configure the runtime to use it.
-Deployment recipes (single-node + Raft HA), connection configuration, and architecture
-diagrams are documented in the
-[medulla deployment guide](https://knuckles-team.github.io/medulla/deployment/).
-
----
-
-## Quick Start & Usage Examples
-
-Using the underlying Stirling PDF Client wrapper directly in Python:
-
-```python
-from stirlingpdf_agent.api_client import StirlingPdfApi
-
-# Initialize the Stirling PDF client
-client = StirlingPdfApi(
-    base_url="http://localhost:8080",
-    token="your-stirling-pdf-api-key",
-)
-
-# Example action: Add a watermark to an existing PDF
-response = client.add_watermark(
-    filepath="input.pdf",
-    watermarkText="CONFIDENTIAL",
-    percentOfPage=30,
-    opacity=0.5,
-    rotation=45,
-)
-
-# Save output PDF bytes
-with open("watermarked_output.pdf", "wb") as f:
-    f.write(response.data)
-```
-
----
-
-## MCP Server Mode
+### MCP Server Mode
 
 This server use dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
 
-### Available MCP Tools
+#### Available MCP Tools
 
 The table below is auto-generated from the MCP server — do not edit by hand.
 
@@ -170,7 +76,7 @@ _2 action-routed tool(s) · 1 verbose 1:1 tool(s). Each is enabled unless its `<
 
 ---
 
-### Dynamic Tool Selection & Visibility
+#### Dynamic Tool Selection & Visibility
 
 This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows the operator to restrict the set of exposed tools to prevent blowing up the LLM's context window.
 
@@ -191,7 +97,7 @@ When query strings or parameters are provided, an LLM-free **Knowledge Graph res
 
 ---
 
-### MCP Configuration Examples
+#### MCP Configuration Examples
 
 <!-- MCP-CONFIG-EXAMPLES:START -->
 
@@ -307,6 +213,8 @@ the detailed transport contract for all four transports — **stdio**, **streama
   and exact `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->
 
+---
+
 ## Agent Mode
 
 This repository features a fully integrated Pydantic AI Graph Agent. It communicates over the **Agent Control Protocol (ACP)** and interacts smoothly with the **Agent Web UI (AG-UI)** and Terminal interface.
@@ -368,6 +276,22 @@ services:
     ports:
       - "9004:9004"
 ```
+
+---
+
+## Security & Governance
+
+Built directly upon the enterprise-ready [`scion-sdk`](https://github.com/Knuckles-Team/scion-sdk) core, standard security parameters are fully supported:
+
+- **Eunomia Policies:** Fine-grained, policy-driven tool authorization. Supports `none`, local `embedded` (`mcp_policies.json`), or centralized `remote` modes.
+- **OIDC Token Delegation:** Compliant with RFC 8693 token exchange for flowing authenticating user credentials from Web UI / ACP → Agent → MCP.
+- **Scoped Credentials:** Execution context runs restricted to the specific caller identity.
+
+| Feature Guard | Feature | Status |
+|---------------|---------------|--------|
+| **Tool Guard** | Sensitivity inspection with human-in-the-loop validation | Enabled by default |
+| **Prompt Injection Defense** | Input scanning, repetition monitoring, and recursive loop blocks | Enabled by default |
+| **Context Safety Guard** | Stuck-loop detectors and contextual overflow preemptive alerts | Enabled by default |
 
 ---
 
@@ -449,29 +373,86 @@ Stirling PDF Agent use both package-specific environment configurations and stan
 
 ---
 
-## Security & Governance
+## Installation
 
-Built directly upon the enterprise-ready [`scion-sdk`](https://github.com/Knuckles-Team/scion-sdk) core, standard security parameters are fully supported:
+Pick the extra that matches what the operator want to run:
 
-- **Eunomia Policies:** Fine-grained, policy-driven tool authorization. Supports `none`, local `embedded` (`mcp_policies.json`), or centralized `remote` modes.
-- **OIDC Token Delegation:** Compliant with RFC 8693 token exchange for flowing authenticating user credentials from Web UI / ACP → Agent → MCP.
-- **Scoped Credentials:** Execution context runs restricted to the specific caller identity.
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `stirlingpdf-agent[mcp]` | Connector-focused MCP server (`scion-sdk[mcp]` — FastMCP/FastAPI + `medulla[full]`) | The operator only run the **MCP server** (smallest install / image) |
+| `stirlingpdf-agent[agent]` | Agent runtime (`scion-sdk[agent-runtime,logfire]` — model orchestration + `medulla[full]`) | The operator run the **integrated agent** |
+| `stirlingpdf-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
-| Feature Guard | Feature | Status |
-|---------------|---------------|--------|
-| **Tool Guard** | Sensitivity inspection with human-in-the-loop validation | Enabled by default |
-| **Prompt Injection Defense** | Input scanning, repetition monitoring, and recursive loop blocks | Enabled by default |
-| **Context Safety Guard** | Stuck-loop detectors and contextual overflow preemptive alerts | Enabled by default |
+```bash
+# Connector-focused MCP server (includes the shared graph engine)
+uv pip install "stirlingpdf-agent[mcp]"
+
+# Agent runtime (adds model orchestration to the shared graph engine)
+uv pip install "stirlingpdf-agent[agent]"
+
+# Everything (development)
+uv pip install "stirlingpdf-agent[all]"      # or: python -m pip install "stirlingpdf-agent[all]"
+```
+
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `knucklessg1/stirlingpdf-agent:mcp` | `--target mcp` | `stirlingpdf-agent[mcp]` — **connector-focused**, includes `medulla[full]`; no model-orchestration stack | `stirlingpdf-mcp` |
+| `knucklessg1/stirlingpdf-agent:2.4.6` | `--target agent` (default) | `stirlingpdf-agent[agent]` — **agent runtime**, model orchestration + `medulla[full]` | `stirlingpdf-agent` |
+
+```bash
+docker build --target mcp   -t knucklessg1/stirlingpdf-agent:mcp    docker/   # connector-focused MCP server
+docker build --target agent -t knucklessg1/stirlingpdf-agent:2.4.6 docker/   # agent runtime
+```
+
+`docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
+agent (`:2.4.6`) with a co-located `:mcp` sidecar. Both compose files require the deployed
+image to be pinned by digest via `STIRLINGPDF_AGENT_MCP_IMAGE` / `STIRLINGPDF_AGENT_AGENT_IMAGE`
+(e.g. `knucklessg1/stirlingpdf-agent@sha256:<digest>`) — least-privilege, read-only,
+non-root (`10001:10001`) containers with no floating tag in production.
+
+### Knowledge-graph database (`medulla`)
+
+Both `[mcp]` and `[agent]` carry the **medulla** engine through the required
+Meristem core dependency (`medulla[full]`). The `[mcp]` extra keeps
+the server connector-focused; `[agent]` also enables model orchestration. Local
+deployments can use the bundled engine. For production or shared state, run
+**medulla as a dedicated database service** and configure the runtime to use it.
+Deployment recipes (single-node + Raft HA), connection configuration, and architecture
+diagrams are documented in the
+[medulla deployment guide](https://knuckles-team.github.io/medulla/deployment/).
 
 ---
 
-## Contribute
+## Quick Start & Usage Examples
 
-Contributions are welcome! Please ensure code quality by running local checks before submitting pull requests:
-- Format code using `ruff format .`
-- Lint code using `ruff check .`
-- Validate type-safety with `mypy .`
-- Ran test suites using `pytest`
+Using the underlying Stirling PDF Client wrapper directly in Python:
+
+```python
+from stirlingpdf_agent.api_client import StirlingPdfApi
+
+# Initialize the Stirling PDF client
+client = StirlingPdfApi(
+    base_url="http://localhost:8080",
+    token="your-stirling-pdf-api-key",
+)
+
+# Example action: Add a watermark to an existing PDF
+response = client.add_watermark(
+    filepath="input.pdf",
+    watermarkText="CONFIDENTIAL",
+    percentOfPage=30,
+    opacity=0.5,
+    rotation=45,
+)
+
+# Save output PDF bytes
+with open("watermarked_output.pdf", "wb") as f:
+    f.write(response.data)
+```
 
 ---
 
@@ -492,6 +473,24 @@ the recommended reference for installation, deployment, and day-to-day operation
 
 `AGENTS.md` is the canonical contributor/agent guidance.
 
+---
+
+## Repository Owners
+
+<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
+
+![GitHub followers](https://img.shields.io/github/followers/example)
+![GitHub User's stars](https://img.shields.io/github/stars/example)
+
+---
+
+## Contribute
+
+Contributions are welcome! Please ensure code quality by running local checks before submitting pull requests:
+- Format code using `ruff format .`
+- Lint code using `ruff check .`
+- Validate type-safety with `mypy .`
+- Ran test suites using `pytest`
 
 <!-- BEGIN agent-os-genesis-deploy (generated; do not edit between markers) -->
 
