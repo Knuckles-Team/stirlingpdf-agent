@@ -2,12 +2,7 @@
 name: stirlingpdf-knowledge-graph
 skill_type: skill
 description: >-
-  Natively ingest Stirling PDF activity into the medulla knowledge graph —
-  available actions as :PdfTool nodes, executed operations as :PdfOperation nodes,
-  and the raw input/output PDF bytes as :Blob / :MediaAsset with :derivedFrom
-  provenance — via the stirlingpdf-agent MCP server. Use when the agent must make
-  PDF operations durable, deduped, and queryable. Do NOT use to actually transform
-  a PDF (use stirlingpdf-watermarking or stirlingpdf-document-operations).
+  Natively ingest Stirling PDF activity into the medulla knowledge graph — available actions as :PdfTool nodes, executed operations as :PdfOperation nodes, and the raw input/output PDF bytes as :Blob / :MediaAsset with :derivedFrom provenance — via the stirlingpdf-agent MCP server. Use when the agent must make PDF operations durable, deduped, and queryable.
 license: MIT
 tags: [stirlingpdf, pdf, knowledge-graph, ingestion, provenance, mcp]
 metadata:
@@ -15,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # Stirling PDF → Knowledge Graph
+
+Scope: Natively ingest Stirling PDF activity into the medulla knowledge graph — available actions as :PdfTool nodes, executed operations as :PdfOperation nodes, and the raw input/output PDF bytes as :Blob / :MediaAsset with :derivedFrom provenance — via the stirlingpdf-agent MCP server. Use when the agent must make PDF operations durable, deduped, and queryable. Do NOT use to actually transform a PDF (use stirlingpdf-watermarking or stirlingpdf-document-operations).
 
 Push Stirling PDF activity into the ONE medulla engine as typed OWL nodes with
 document provenance. Ingestion is **native and default-on**: every successful
@@ -42,6 +39,19 @@ ingestion entry point **no-ops** cleanly — nothing fails.
 |----------|----------|-------|
 | `STIRLINGPDF_URL` | ✅ | Base URL of the Stirling PDF instance |
 | `STIRLINGPDF_API_KEY` | optional | Sent as `X-API-KEY` |
+
+## Steps
+1. Confirm the instance is reachable with `stirlingpdf_get_status`. Verify it returns a version.
+2. Call `stirlingpdf_ingest_tools` with empty params `{}`. Verify the result has `listed` greater than 0.
+3. Check the `ingested` field of the result. Verify it is an object and not `null` (null means no engine was reachable).
+4. Run a watermark or document operation as usual, and query the KG for `stirlingpdf:op:` node ids. Verify a `:PdfOperation` with a `:derivedFrom` link exists.
+
+## Failure recovery
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| `ingested` is null | No medulla engine reachable, so ingestion no-ops | Ask the operator to restore the engine, then call `stirlingpdf_ingest_tools` again |
+| `listed` is 0 or an error | `STIRLINGPDF_URL` wrong or unset | Ask the operator to set `STIRLINGPDF_URL`, then confirm with `stirlingpdf_get_status` |
+| Missing operation node | The operation failed before ingestion | Re-run the operation and check its `data` field first |
 
 ## Tools & actions
 | Tool | Purpose |

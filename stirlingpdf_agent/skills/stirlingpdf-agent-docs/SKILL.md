@@ -1,7 +1,7 @@
 ---
 name: stirlingpdf-agent-docs
 skill_type: skill
-description: Comprehensive reference documentation for Stirlingpdf Agent Docs.
+description: Reference documentation for Stirling PDF, crawled from its public docs site. Use when the agent needs to look up Stirling PDF features, settings or API behaviour before calling the stirlingpdf-agent tools. Do NOT use to run PDF operations (use stirlingpdf-document-operations).
 crawl_depth: 2
 source_url: https://docs.stirlingpdf.com
 categories: [Documentation, Knowledge Base, Reference]
@@ -20,7 +20,19 @@ Comprehensive reference documentation for Stirlingpdf Agent Docs.
 
 ## 📚 Table of Contents
 
-- [Index](reference/index.md)
+- [Index](references/index.md)
+
+## Steps
+1. Search the reference for the topic with `grep -n -i "<term>" references/index.md`. Verify at least one matching line number is returned.
+2. Read the matching section with `sed -n '<start>,<end>p' references/index.md`. Verify the quoted text covers the question asked.
+3. Cite the exact quote and the original source link `https://docs.stirlingpdf.com` in the answer. Verify the quote appears verbatim in the file.
+
+## Failure recovery
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| `grep` returns nothing | The term is not in the crawled page | Try a synonym with `grep -n -i`, or search the live source `https://docs.stirlingpdf.com` |
+| Section looks outdated | The crawl is dated (see "Last updated" above) | Compare with the live source and state the crawl date in the answer |
+| Cookie-banner text in results | The crawl captured page chrome | Skip those lines and read the section headings, such as `## Benefits of Stirling-PDF` |
 
 ## 🤖 Agent Usage Guide
 

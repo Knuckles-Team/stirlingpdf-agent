@@ -2,12 +2,7 @@
 name: stirlingpdf-watermarking
 skill_type: skill
 description: >-
-  Stamp text (or image) watermarks onto a PDF via the stirlingpdf-agent MCP
-  server's typed watermark tool. Use when the agent must brand, mark DRAFT/CONFIDENTIAL,
-  or overlay repeating text on a PDF using a self-hosted Stirling PDF instance.
-  Do NOT use for password protection / redaction (that is document security), for
-  merge/split/convert/OCR (use stirlingpdf-document-operations), or for pushing
-  results into the knowledge graph (use stirlingpdf-knowledge-graph).
+  Stamp text (or image) watermarks onto a PDF via the stirlingpdf-agent MCP server's typed watermark tool. Use when the agent must brand, mark DRAFT/CONFIDENTIAL, or overlay repeating text on a PDF using a self-hosted Stirling PDF instance.
 license: MIT
 tags: [stirlingpdf, pdf, watermark, rest-api, mcp]
 metadata:
@@ -15,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # Stirling PDF Watermarking
+
+Scope: Stamp text (or image) watermarks onto a PDF via the stirlingpdf-agent MCP server's typed watermark tool. Use when the agent must brand, mark DRAFT/CONFIDENTIAL, or overlay repeating text on a PDF using a self-hosted Stirling PDF instance. Do NOT use for password protection / redaction (that is document security), for merge/split/convert/OCR (use stirlingpdf-document-operations), or for pushing results into the knowledge graph (use stirlingpdf-knowledge-graph).
 
 Apply a watermark to a PDF through the **`stirlingpdf-agent`** MCP server. This is the
 one fully-typed, first-class operation the client implements (`add_watermark` →
@@ -53,6 +50,19 @@ Connect via the `mcp-client` skill against the **`stirlingpdf-agent`** MCP serve
 - `watermarkText` - the text to render.
 - `opacity` (`0.0`-`1.0`), `rotation` (degrees), `fontSize`, `alphabet` (`roman`),
   `widthSpacer`, `heightSpacer` - all optional strings with sensible defaults.
+
+## Steps
+1. Check the server with `stirlingpdf_get_status`. Verify it reports a version.
+2. Build the arguments: exactly one of `file_base64` or `filepath`, `watermarkType`, `watermarkText`, and string values for `opacity` and `rotation`. Verify every numeric value is quoted as a string.
+3. Call `stirlingpdf_add_watermark` with those arguments. Verify the response has a `data` field.
+4. Decode `data` from base64 and open the PDF. Verify the watermark text appears on every page.
+
+## Failure recovery
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Parameter rejected | Numbers were sent instead of strings | Resend with `"0.3"` and `"45"` style string values |
+| File not found | `filepath` is resolved on the server filesystem | Resend with `file_base64` holding the bytes |
+| Authorization error | `STIRLINGPDF_API_KEY` not set | Ask the operator to set `STIRLINGPDF_API_KEY`, then confirm with `stirlingpdf_get_status` |
 
 ## Recipes
 Stamp a semi-transparent DRAFT watermark on uploaded bytes:
