@@ -14,7 +14,7 @@ Comprehensive reference documentation for Stirlingpdf Agent Docs.
 
 ## 📚 Table of Contents
 
-- [Index](reference/index.md)
+- [Index](references/index.md)
 
 ## 🤖 Agent Usage Guide
 

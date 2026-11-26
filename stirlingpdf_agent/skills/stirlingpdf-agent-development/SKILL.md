@@ -39,6 +39,20 @@ owning spec row in the commit trailer.
 - Use `Spec: <ID>` and the assisting agent trailer on consecutive final commit
   message lines when a change delivers a requirement.
 
+## Steps
+1. Locate the owning requirement with `git grep -n "<term>" -- specs`. Verify a spec row id is found before editing.
+2. Edit only the files that slice needs. Verify with `git diff --stat` that no unrelated file changed.
+3. Run the focused mocked test with `uv run --all-extras pytest tests/test_read_only_status.py -q`. Verify it passes.
+4. Run the repository gate with `uvx pre-commit run --all-files`. Verify every hook reports Passed.
+5. Stage reviewed paths with `git add -- <path>` and commit with a `Spec:` trailer. Verify `git diff --cached --name-status` lists only intended files.
+
+## Failure recovery
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| No spec row found | The change has no owning requirement | Extend the nearest row under `specs/` before writing code |
+| A pre-commit hook fails | Shared gate violation | Read the hook output, fix the named file at its source, and commit again with hooks active |
+| Test reaches a live service | A request was not mocked | Mock the Stirling PDF request in the test and rerun `uv run --all-extras pytest` on that file |
+
 ## Setup and gates
 
 Use the pinned environment from `uv sync --locked`. Run the repository gate

@@ -19,6 +19,20 @@ Use the provider's governed MCP tools through Arbora delegation.
 5. Ingest source data only through the signed connector preset and ChangeEnvelope path.
 6. Verify the durable result and its trace/evidence before reporting completion.
 
+## Steps
+1. Establish the verified GraphSession and tenant with `ask(intent='show my session and tenant')`. Verify the session reports an authenticated tenant.
+2. Discover the current tool surface with `find(intent='stirlingpdf')`. Verify the returned tool names and schemas before using any.
+3. Run a read-only inspection first, such as `stirlingpdf_get_status`. Verify the response reports a healthy server version.
+4. For a change, preview the plan with `act` and resubmit with `execute=true` only after approval. Verify the preview lists the intended operation and file.
+5. Check the durable result and its trace with `ask(intent='show the trace of this operation')`. Verify the evidence record exists before reporting completion.
+
+## Failure recovery
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Tool name or schema not found | A stale tool name was assumed | Call `find(intent='stirlingpdf')` again and use the returned tool name and params |
+| Mutation refused | No approval or no verified session | Obtain explicit approval, re-establish the GraphSession, and resubmit the previewed plan with `execute=true` |
+| Server unreachable | `STIRLINGPDF_URL` unset or wrong | Ask the operator to correct `STIRLINGPDF_URL`, then confirm with `stirlingpdf_get_status` |
+
 ## Safety contract
 
 - Never persist credentials, endpoints, raw personal identifiers, hostnames, or local paths.
